@@ -428,3 +428,222 @@ After:  Premium futuristic interface with depth and atmosphere
 ---
 
 Built with ❤️ for the AI Voice Agents Challenge by Murf.ai
+
+
+---
+
+## 🤖 Agent Update - Blue Tokai Coffee Barista (Day 2)
+
+### Overview
+Upgraded the coffee ordering agent with a comprehensive KERNE-framework based system prompt for Blue Tokai Coffee Roasters. The agent now features multilingual support (English/Hindi/Hinglish), enhanced personality, and structured conversation flow.
+
+### Agent Changes (`backend/src/agent.py`)
+
+#### New Persona
+**Brand:** Blue Tokai Coffee Roasters (upgraded from generic "Murf Coffee")
+**Personality:**
+- Multilingual (English + Hindi/Hinglish)
+- Witty and warm with playful comments
+- Mirrors customer's language style
+- Examples: "Kya lenge aaj – strong espresso ya chill cold brew?"
+
+#### Enhanced System Prompt (KERNE Framework)
+**K - Keep It Simple:** Single goal of taking coffee orders
+**E - Easy to Verify:** Clear success criteria with all 5 fields filled
+**R - Reproducible:** No time-sensitive terms, consistent behavior
+**N - Narrow Scope:** Focused only on coffee ordering
+**E - Explicit Constraints:** Detailed persona, tone, and flow rules
+
+#### Improved Function Tools
+
+**Before:**
+- `update_drink_type()` - Basic field update
+- `update_size()` - Basic field update
+- `update_milk()` - Basic field update
+- `add_extras()` - Basic field update
+- `no_extras()` - Simple flag
+- `update_name()` - Basic field update
+- `save_order()` - Save to JSON
+
+**After:**
+- `set_name()` - Sets name and guides next step
+- `set_drink_type()` - Sets drink with validation
+- `set_size()` - Validates size (small/medium/large) with auto-default
+- `set_milk()` - Sets milk preference with lowercase normalization
+- `add_extras()` - Parses comma-separated extras list
+- `no_extras()` - Explicitly sets empty array
+- `confirm_order()` - NEW - Validates and recaps complete order
+- `save_order()` - Enhanced with validation, logging, and state reset
+
+#### Conversation Flow Improvements
+
+**Structured Order:**
+1. Name first: "What's your name?" or "Kis naam pe likhūn cup?"
+2. Drink type: Offers menu suggestions
+3. Size: Defaults to "medium" if not specified (with confirmation)
+4. Milk: Defaults to "regular" if not specified (with confirmation)
+5. Extras: Optional, can be skipped
+6. Confirmation: Uses `confirm_order()` to recap
+7. Save: Only after explicit user confirmation
+
+**Smart Extraction:**
+- If user provides multiple details at once, extracts all and only asks for missing fields
+- Example: "Large oat milk latte with vanilla, name is Riya" → extracts 4 fields, only asks for extras
+
+**Order Modification:**
+- User can change any field mid-conversation
+- Agent updates only that field without restarting
+- Example: "Actually make it small" → updates size only
+
+#### Multilingual Behavior
+
+**Language Detection:**
+- Detects user's language from their message
+- Mostly English → responds in English (with Hinglish sprinkles)
+- Mostly Hindi/Hinglish → responds in Hindi/Hinglish with English coffee terms
+- Mirrors customer's communication style
+
+**Examples:**
+```
+English: "What size would you like - small, medium, or large?"
+Hinglish: "Koi extras chahiye? Extra shot, flavour syrup, whipped cream?"
+```
+
+#### Menu & Brand Context
+
+**Blue Tokai Menu:**
+- Espresso, Americano, Cappuccino, Latte, Flat White
+- Mocha, Cold Brew, Iced Latte, Frappé, Hot Chocolate
+- Accepts custom drinks too
+
+**Brand References:**
+- "Our roasts", "Blue Tokai brews", "signature cold brews"
+- No fake prices or store locations
+
+#### Order State Management
+
+**Structure:**
+```javascript
+{
+  "drinkType": "",  // Required
+  "size": "",       // Required (defaults to "medium")
+  "milk": "",       // Required (defaults to "regular")
+  "extras": [],     // Optional array
+  "name": ""        // Required
+}
+```
+
+**Validation:**
+- All fields must be non-empty before saving
+- `confirm_order()` checks for missing fields
+- `save_order()` validates before writing to file
+
+#### Enhanced Logging
+
+**Machine-Readable Output:**
+```python
+json_str = json.dumps(self.order_state, separators=(',', ':'))
+logger.info(f"SAVE_ORDER_JSON: {json_str}")
+```
+
+**Format:**
+```
+SAVE_ORDER_JSON: {"drinkType":"Iced Latte","size":"large","milk":"oat","extras":["extra shot","vanilla syrup"],"name":"Riya"}
+```
+
+#### State Reset After Order
+- After successful save, order state resets to empty
+- Agent ready for next customer
+- Maintains conversation context
+
+#### Error Handling
+
+**Unclear Input:**
+- Politely asks again: "I didn't catch the size – small, medium, or large?"
+
+**Off-Topic Conversation:**
+- Gently redirects: "Love this chat – ab batao, aaj ka coffee order kya rakhen?"
+
+**Missing Fields:**
+- `confirm_order()` lists missing fields
+- `save_order()` refuses to save incomplete orders
+
+#### Greeting Update
+
+**Before:**
+```
+"Welcome to Murf Coffee! I'm your barista today. What can I get started for you?"
+```
+
+**After:**
+```
+"Hey! Welcome to Blue Tokai Coffee Roasters. Main aapka virtual barista hoon. 
+What's your name, and what kind of coffee mood are we in today?"
+```
+
+### Technical Implementation
+
+**Voice-Optimized:**
+- No complex formatting, emojis, or markdown in speech
+- Natural conversational responses
+- Short, clear sentences for TTS clarity
+
+**Function Tool Design:**
+- Each tool has clear single responsibility
+- Tools guide conversation flow naturally
+- Return values provide next prompt to user
+
+**Order Persistence:**
+- Saves to `orders/order_TIMESTAMP_NAME.json`
+- Includes timestamp and status fields
+- Creates orders directory if not exists
+
+### Testing Recommendations
+
+**Test Scenarios:**
+1. **Complete order in one message:**
+   - "Large oat milk latte with vanilla, name is Riya"
+   - Should extract all fields and only ask for extras
+
+2. **Step-by-step order:**
+   - Name → Drink → Size → Milk → Extras → Confirm
+   - Should guide through each step naturally
+
+3. **Order modification:**
+   - Change size mid-order: "Actually make it small"
+   - Should update only that field
+
+4. **Multilingual:**
+   - Mix English and Hindi
+   - Agent should mirror language style
+
+5. **Default handling:**
+   - Don't specify size → should default to medium with confirmation
+   - Don't specify milk → should default to regular with confirmation
+
+6. **Extras handling:**
+   - No extras → should accept and continue
+   - Multiple extras → should parse comma-separated list
+
+7. **Incomplete order:**
+   - Try to save without all fields → should refuse and list missing
+
+### Files Modified
+- `backend/src/agent.py` - Complete agent rewrite with KERNE framework
+
+### Performance Impact
+- No performance changes
+- Same function calling mechanism
+- Enhanced conversation quality
+
+### Backward Compatibility
+- Order JSON format unchanged
+- File naming convention unchanged
+- All existing orders remain valid
+
+---
+
+**Agent Version:** 2.0 - Blue Tokai Edition
+**Framework:** KERNE (Keep, Easy, Reproducible, Narrow, Explicit)
+**Language Support:** English + Hindi/Hinglish
+**Brand:** Blue Tokai Coffee Roasters
