@@ -20,13 +20,13 @@ const toggleVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-transparent',
+        default: 'bg-transparent hover:bg-white/5',
         primary:
-          'bg-muted data-[state=on]:bg-muted hover:text-foreground text-destructive hover:text-foreground hover:bg-foreground/10 hover:data-[state=on]:bg-foreground/10',
+          'glass border border-white/10 hover:bg-white/10 text-destructive hover:text-foreground data-[state=on]:bg-white/15',
         secondary:
-          'bg-muted data-[state=on]:bg-muted hover:text-foreground hover:bg-foreground/10 hover:data-[state=on]:bg-foreground/10 data-[state=on]:bg-blue-500/20 data-[state=on]:hover:bg-blue-500/30 data-[state=on]:text-blue-700 dark:data-[state=on]:text-blue-300',
+          'glass border border-white/10 hover:bg-white/10 data-[state=on]:bg-cyan-500/20 data-[state=on]:border-cyan-400/30 data-[state=on]:hover:bg-cyan-500/30 data-[state=on]:text-cyan-300',
         outline:
-          'border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground',
+          'glass border border-white/15 hover:bg-white/10 hover:border-white/20',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

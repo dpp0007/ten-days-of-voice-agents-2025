@@ -87,7 +87,7 @@ export function ChatInput({
           disabled={isDisabled}
           variant={isDisabled ? 'secondary' : 'primary'}
           title={isSending ? 'Sending...' : 'Send'}
-          className="self-start"
+          className="self-start relative z-10 pointer-events-auto"
         >
           {isSending ? (
             <SpinnerIcon className="animate-spin" weight="bold" />

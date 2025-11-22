@@ -29,33 +29,130 @@ export const WelcomeView = ({
   ref,
 }: React.ComponentProps<'div'> & WelcomeViewProps) => {
   return (
-    <div ref={ref}>
-      <section className="bg-background flex flex-col items-center justify-center text-center">
-        <WelcomeImage />
-
-        <p className="text-foreground max-w-prose pt-1 leading-6 font-medium">
-          Chat live with your voice AI agent
-        </p>
-
-        <Button variant="primary" size="lg" onClick={onStartCall} className="mt-6 w-64 font-mono">
-          {startButtonText}
-        </Button>
-      </section>
-
-      <div className="fixed bottom-5 left-0 flex w-full items-center justify-center">
-        <p className="text-muted-foreground max-w-prose pt-1 text-xs leading-5 font-normal text-pretty md:text-sm">
-          Need help getting set up? Check out the{' '}
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://docs.livekit.io/agents/start/voice-ai/"
-            className="underline"
-          >
-            Voice AI quickstart
-          </a>
-          .
-        </p>
+    <div ref={ref} className="relative h-screen w-screen overflow-hidden bg-[#0C0C0E]">
+      {/* Abstract gradient shapes at borders */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Top-left abstract blob */}
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-gradient-to-br from-cyan-500/30 to-blue-500/20 rounded-[40%_60%_70%_30%/60%_30%_70%_40%] blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+        
+        {/* Top-right flowing shape */}
+        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] bg-gradient-to-bl from-purple-500/25 to-pink-500/15 rounded-[60%_40%_30%_70%/40%_60%_70%_30%] blur-3xl animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
+        
+        {/* Bottom-left organic shape */}
+        <div className="absolute -bottom-48 -left-48 w-[600px] h-[600px] bg-gradient-to-tr from-blue-500/20 to-cyan-500/25 rounded-[30%_70%_70%_30%/30%_30%_70%_70%] blur-3xl animate-pulse" style={{ animationDuration: '12s', animationDelay: '4s' }} />
+        
+        {/* Bottom-right abstract form */}
+        <div className="absolute -bottom-40 -right-40 w-[550px] h-[550px] bg-gradient-to-tl from-purple-600/30 to-indigo-500/20 rounded-[70%_30%_50%_50%/60%_40%_60%_40%] blur-3xl animate-pulse" style={{ animationDuration: '9s', animationDelay: '1s' }} />
+        
+        {/* Middle-right accent */}
+        <div className="absolute top-1/3 -right-20 w-64 h-64 bg-gradient-to-l from-cyan-400/20 to-transparent rounded-[50%_50%_30%_70%/60%_40%_60%_40%] blur-2xl animate-pulse" style={{ animationDuration: '7s', animationDelay: '3s' }} />
+        
+        {/* Middle-left accent */}
+        <div className="absolute bottom-1/3 -left-20 w-64 h-64 bg-gradient-to-r from-purple-400/20 to-transparent rounded-[70%_30%_50%_50%/40%_60%_40%_60%] blur-2xl animate-pulse" style={{ animationDuration: '11s', animationDelay: '5s' }} />
       </div>
+
+      {/* Animated grid overlay for depth */}
+      <div className="absolute inset-0 opacity-20">
+        <div 
+          className="h-full w-full"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
+            `,
+            backgroundSize: '80px 80px',
+            animation: 'gridMove 20s linear infinite',
+          }}
+        />
+      </div>
+
+      {/* Grid animation keyframes */}
+      <style jsx>{`
+        @keyframes gridMove {
+          0% {
+            transform: translate(0, 0);
+          }
+          100% {
+            transform: translate(80px, 80px);
+          }
+        }
+      `}</style>
+
+      <section className="relative z-10 flex h-full flex-col items-center justify-center px-4">
+        {/* Elegant pulsing orb with chat icon */}
+        <div className="relative mb-16">
+          {/* Outer pulsing rings */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute h-32 w-32 md:h-40 md:w-40 rounded-full border-2 border-cyan-400/20 animate-pulse" style={{ animationDuration: '2s' }} />
+            <div className="absolute h-40 w-40 md:h-48 md:w-48 rounded-full border border-cyan-400/10 animate-pulse" style={{ animationDuration: '3s', animationDelay: '0.5s' }} />
+            <div className="absolute h-48 w-48 md:h-56 md:w-56 rounded-full border border-purple-400/10 animate-pulse" style={{ animationDuration: '4s', animationDelay: '1s' }} />
+          </div>
+          
+          {/* Center orb */}
+          <div className="relative h-24 w-24 md:h-28 md:w-28 rounded-full bg-gradient-to-br from-cyan-400/90 to-purple-500/90 flex items-center justify-center shadow-2xl shadow-cyan-500/50">
+            {/* Inner glow */}
+            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-white/40 to-transparent" />
+            
+            {/* Sound wave bars */}
+            <svg className="relative z-10 w-12 h-12 md:w-14 md:h-14 text-white" viewBox="0 0 48 48" fill="currentColor">
+              <rect x="4" y="18" width="4" height="12" rx="2" className="animate-pulse" style={{ animationDuration: '1s', animationDelay: '0s' }}/>
+              <rect x="12" y="12" width="4" height="24" rx="2" className="animate-pulse" style={{ animationDuration: '1s', animationDelay: '0.1s' }}/>
+              <rect x="20" y="8" width="4" height="32" rx="2" className="animate-pulse" style={{ animationDuration: '1s', animationDelay: '0.2s' }}/>
+              <rect x="28" y="14" width="4" height="20" rx="2" className="animate-pulse" style={{ animationDuration: '1s', animationDelay: '0.3s' }}/>
+              <rect x="36" y="10" width="4" height="28" rx="2" className="animate-pulse" style={{ animationDuration: '1s', animationDelay: '0.4s' }}/>
+            </svg>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="text-center space-y-6 max-w-2xl">
+          <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight">
+            Start a conversation
+          </h1>
+          
+          <p className="text-lg md:text-xl text-gray-400 font-light max-w-md mx-auto">
+            Speak naturally with AI that understands and responds in real-time
+          </p>
+        </div>
+
+        {/* Action button */}
+        <button
+          onClick={onStartCall}
+          className="mt-12 group relative px-8 py-4 bg-white rounded-full flex items-center gap-3 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+        >
+          {/* Glow effect on hover */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full blur opacity-0 group-hover:opacity-40 transition duration-300" />
+          
+          <span className="relative z-10 text-gray-900 font-semibold text-base">
+            {startButtonText}
+          </span>
+          <svg className="relative z-10 w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        {/* Features */}
+        <div className="mt-16 flex flex-wrap items-center justify-center gap-8 text-sm text-gray-500">
+          <div className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span>Real-time responses</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span>Natural voice</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span>Powered by Murf Falcon</span>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
