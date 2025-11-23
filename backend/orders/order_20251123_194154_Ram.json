@@ -1,0 +1,12 @@
+{
+  "drinkType": "Latte",
+  "size": "medium",
+  "milk": "regular",
+  "extras": [
+    "vanilla syrup"
+  ],
+  "name": "Ram",
+  "token_number": "BT-20251123-YWV0",
+  "timestamp": "2025-11-23T19:41:54.945327",
+  "status": "confirmed"
+}

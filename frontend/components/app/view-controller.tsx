@@ -4,11 +4,11 @@ import { useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRoomContext } from '@livekit/components-react';
 import { useSession } from '@/components/app/session-provider';
-import { SessionView } from '@/components/app/session-view';
+import { BlueTokaSessionView } from '@/components/app/blue-tokai-session';
 import { WelcomeView } from '@/components/app/welcome-view';
 
 const MotionWelcomeView = motion.create(WelcomeView);
-const MotionSessionView = motion.create(SessionView);
+const MotionSessionView = motion.create(BlueTokaSessionView);
 
 const VIEW_MOTION_PROPS = {
   variants: {
@@ -31,7 +31,7 @@ const VIEW_MOTION_PROPS = {
 export function ViewController() {
   const room = useRoomContext();
   const isSessionActiveRef = useRef(false);
-  const { appConfig, isSessionActive, startSession } = useSession();
+  const { appConfig, isSessionActive, startSession, endSession } = useSession();
 
   // animation handler holds a reference to stale isSessionActive value
   isSessionActiveRef.current = isSessionActive;
@@ -60,6 +60,7 @@ export function ViewController() {
           key="session-view"
           {...VIEW_MOTION_PROPS}
           appConfig={appConfig}
+          onEndSession={endSession}
           onAnimationComplete={handleAnimationComplete}
         />
       )}

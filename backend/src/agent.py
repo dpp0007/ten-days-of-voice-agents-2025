@@ -68,7 +68,8 @@ CONVERSATION FLOW:
 5. Ask extras: "Would you like any extras? Extra shot, vanilla syrup, whipped cream?"
 6. Recap the complete order clearly in English
 7. Ask for confirmation: "Does that sound good? Should I confirm this order?"
-8. After confirmation, use the save_order tool
+8. CRITICAL: After user says YES/confirms, you MUST immediately call the save_order function tool. DO NOT just say "confirmed" - you must actually call save_order()
+9. Only after calling save_order successfully, tell the customer their order is confirmed
 
 CLARIFYING QUESTIONS:
 - Ask one or two things at a time to keep it natural
@@ -99,7 +100,16 @@ IMPORTANT:
         """Called when the agent starts - greet the customer"""
         await self.session.say("Hello! Welcome to Blue Tokai Coffee Roasters. I'm your virtual barista today. What's your name, and what kind of coffee are you in the mood for?")
     
-    def _generate_html_receipt(self, order_data: dict) -> str:
+    def _generate_token_number(self) -> str:
+        """Generate a unique token number for the order."""
+        import random
+        import string
+        # Format: BT-YYYYMMDD-XXXX (BT = Blue Tokai, XXXX = random alphanumeric)
+        date_part = datetime.now().strftime("%Y%m%d")
+        random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+        return f"BT-{date_part}-{random_part}"
+    
+    def _generate_html_receipt(self, order_data: dict, token_number: str) -> str:
         """Generate an HTML receipt visualization for the order."""
         
         # Determine cup size for visualization
@@ -170,6 +180,17 @@ IMPORTANT:
             margin: 5px 0 0 0;
             font-size: 14px;
         }}
+        .token-number {{
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 15px 0;
+            display: inline-block;
+        }}
         .cup-container {{
             display: flex;
             justify-content: center;
@@ -237,6 +258,7 @@ IMPORTANT:
         <div class="header">
             <h1>☕ BLUE TOKAI</h1>
             <p>Coffee Roasters</p>
+            <div class="token-number">Token: {token_number}</div>
         </div>
         
         <div class="cup-container">
@@ -395,7 +417,9 @@ IMPORTANT:
 
     @function_tool()
     async def save_order(self, context: RunContext) -> str:
-        """Save the complete order to a JSON file. ONLY call this after the customer has explicitly confirmed the order."""
+        """CRITICAL: Save the complete order to a JSON file and send HTML receipt to frontend. 
+        You MUST call this function immediately after the customer confirms their order (says yes/okay/confirm).
+        DO NOT just say the order is confirmed - you must actually call this function to save it."""
         
         # Validate all fields are filled
         if not all([
@@ -414,9 +438,13 @@ IMPORTANT:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{orders_dir}/order_{timestamp}_{self.order_state['name']}.json"
         
+        # Generate unique token number
+        token_number = self._generate_token_number()
+        
         # Prepare order data
         order_data = {
             **self.order_state,
+            "token_number": token_number,
             "timestamp": datetime.now().isoformat(),
             "status": "confirmed"
         }
@@ -428,11 +456,12 @@ IMPORTANT:
         # Log the machine-readable format
         json_str = json.dumps(self.order_state, separators=(',', ':'))
         logger.info(f"SAVE_ORDER_JSON: {json_str}")
+        logger.info(f"TOKEN_NUMBER: {token_number}")
         logger.info(f"Order saved to {filename}")
         
         # Generate HTML visualization
         html_filename = f"{orders_dir}/order_{timestamp}_{self.order_state['name']}.html"
-        html_content = self._generate_html_receipt(order_data)
+        html_content = self._generate_html_receipt(order_data, token_number)
         with open(html_filename, 'w', encoding='utf-8') as f:
             f.write(html_content)
         logger.info(f"HTML_SNIPPET:")
@@ -449,7 +478,25 @@ IMPORTANT:
             "name": ""
         }
         
-        return f"Perfect! Your Blue Tokai order is locked in. Your {order_data['size']} {order_data['drinkType']} will be ready shortly. Thank you, {order_data['name']}! Enjoy your brew!"
+        # Send HTML as data message to frontend
+        logger.info("Sending HTML as data message to frontend")
+        html_message = f"HTML_SNIPPET:{html_content}END_HTML_SNIPPET"
+        
+        # Send via data channel using session's room
+        try:
+            await self.session.room.local_participant.publish_data(
+                html_message.encode('utf-8'),
+                reliable=True
+            )
+            logger.info("✅ HTML sent via data message")
+        except Exception as e:
+            logger.error(f"❌ Failed to send HTML via data message: {e}")
+        
+        # ALSO return confirmation with HTML embedded as fallback
+        confirmation = f"Perfect! Your Blue Tokai order is locked in. Your {order_data['size']} {order_data['drinkType']} will be ready shortly. Thank you, {order_data['name']}! Enjoy your brew!"
+        
+        # Return both confirmation and HTML for chat message fallback
+        return f"{confirmation} HTML_SNIPPET:{html_content}END_HTML_SNIPPET"
 
 
 def prewarm(proc: JobProcess):

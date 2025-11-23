@@ -1,0 +1,11 @@
+{
+  "drinkType": "Latte",
+  "size": "small",
+  "milk": "regular",
+  "extras": [
+    "vanilla syrup"
+  ],
+  "name": "Ram",
+  "timestamp": "2025-11-23T15:41:56.572578",
+  "status": "confirmed"
+}

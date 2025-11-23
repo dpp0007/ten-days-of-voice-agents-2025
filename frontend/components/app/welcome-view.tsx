@@ -1,22 +1,4 @@
-import { Button } from '@/components/livekit/button';
-
-function WelcomeImage() {
-  return (
-    <svg
-      width="64"
-      height="64"
-      viewBox="0 0 64 64"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="text-fg0 mb-4 size-16"
-    >
-      <path
-        d="M15 24V40C15 40.7957 14.6839 41.5587 14.1213 42.1213C13.5587 42.6839 12.7956 43 12 43C11.2044 43 10.4413 42.6839 9.87868 42.1213C9.31607 41.5587 9 40.7957 9 40V24C9 23.2044 9.31607 22.4413 9.87868 21.8787C10.4413 21.3161 11.2044 21 12 21C12.7956 21 13.5587 21.3161 14.1213 21.8787C14.6839 22.4413 15 23.2044 15 24ZM22 5C21.2044 5 20.4413 5.31607 19.8787 5.87868C19.3161 6.44129 19 7.20435 19 8V56C19 56.7957 19.3161 57.5587 19.8787 58.1213C20.4413 58.6839 21.2044 59 22 59C22.7956 59 23.5587 58.6839 24.1213 58.1213C24.6839 57.5587 25 56.7957 25 56V8C25 7.20435 24.6839 6.44129 24.1213 5.87868C23.5587 5.31607 22.7956 5 22 5ZM32 13C31.2044 13 30.4413 13.3161 29.8787 13.8787C29.3161 14.4413 29 15.2044 29 16V48C29 48.7957 29.3161 49.5587 29.8787 50.1213C30.4413 50.6839 31.2044 51 32 51C32.7956 51 33.5587 50.6839 34.1213 50.1213C34.6839 49.5587 35 48.7957 35 48V16C35 15.2044 34.6839 14.4413 34.1213 13.8787C33.5587 13.3161 32.7956 13 32 13ZM42 21C41.2043 21 40.4413 21.3161 39.8787 21.8787C39.3161 22.4413 39 23.2044 39 24V40C39 40.7957 39.3161 41.5587 39.8787 42.1213C40.4413 42.6839 41.2043 43 42 43C42.7957 43 43.5587 42.6839 44.1213 42.1213C44.6839 41.5587 45 40.7957 45 40V24C45 23.2044 44.6839 22.4413 44.1213 21.8787C43.5587 21.3161 42.7957 21 42 21ZM52 17C51.2043 17 50.4413 17.3161 49.8787 17.8787C49.3161 18.4413 49 19.2044 49 20V44C49 44.7957 49.3161 45.5587 49.8787 46.1213C50.4413 46.6839 51.2043 47 52 47C52.7957 47 53.5587 46.6839 54.1213 46.1213C54.6839 45.5587 55 44.7957 55 44V20C55 19.2044 54.6839 18.4413 54.1213 17.8787C53.5587 17.3161 52.7957 17 52 17Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
+import { AnimatedGrid } from "@/components/app/animated-grid";
 
 interface WelcomeViewProps {
   startButtonText: string;
@@ -29,130 +11,807 @@ export const WelcomeView = ({
   ref,
 }: React.ComponentProps<'div'> & WelcomeViewProps) => {
   return (
-    <div ref={ref} className="relative h-screen w-screen overflow-hidden bg-[#0C0C0E]">
-      {/* Abstract gradient shapes at borders */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Top-left abstract blob */}
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-gradient-to-br from-cyan-500/30 to-blue-500/20 rounded-[40%_60%_70%_30%/60%_30%_70%_40%] blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+    <>
+      <div ref={ref} className="welcome-container">
+        {/* Animated Grid Pattern */}
+        <AnimatedGrid />
         
-        {/* Top-right flowing shape */}
-        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] bg-gradient-to-bl from-purple-500/25 to-pink-500/15 rounded-[60%_40%_30%_70%/40%_60%_70%_30%] blur-3xl animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
-        
-        {/* Bottom-left organic shape */}
-        <div className="absolute -bottom-48 -left-48 w-[600px] h-[600px] bg-gradient-to-tr from-blue-500/20 to-cyan-500/25 rounded-[30%_70%_70%_30%/30%_30%_70%_70%] blur-3xl animate-pulse" style={{ animationDuration: '12s', animationDelay: '4s' }} />
-        
-        {/* Bottom-right abstract form */}
-        <div className="absolute -bottom-40 -right-40 w-[550px] h-[550px] bg-gradient-to-tl from-purple-600/30 to-indigo-500/20 rounded-[70%_30%_50%_50%/60%_40%_60%_40%] blur-3xl animate-pulse" style={{ animationDuration: '9s', animationDelay: '1s' }} />
-        
-        {/* Middle-right accent */}
-        <div className="absolute top-1/3 -right-20 w-64 h-64 bg-gradient-to-l from-cyan-400/20 to-transparent rounded-[50%_50%_30%_70%/60%_40%_60%_40%] blur-2xl animate-pulse" style={{ animationDuration: '7s', animationDelay: '3s' }} />
-        
-        {/* Middle-left accent */}
-        <div className="absolute bottom-1/3 -left-20 w-64 h-64 bg-gradient-to-r from-purple-400/20 to-transparent rounded-[70%_30%_50%_50%/40%_60%_40%_60%] blur-2xl animate-pulse" style={{ animationDuration: '11s', animationDelay: '5s' }} />
+        {/* Main Content */}
+        <div className="content-wrapper">
+          {/* Animated Coffee Cup */}
+          <div className="coffee-cup-container">
+            <div className="coffee-cup">
+              <div className="cup-rim"></div>
+              <div className="coffee-surface">
+                <div className="ripple ripple-1"></div>
+                <div className="ripple ripple-2"></div>
+                <div className="ripple ripple-3"></div>
+              </div>
+              <div className="steam steam-1"></div>
+              <div className="steam steam-2"></div>
+              <div className="steam steam-3"></div>
+            </div>
+          </div>
+
+          {/* Hero Title */}
+          <h1 className="hero-title">Blue Tokai BrewBot</h1>
+          
+          {/* Subtitle */}
+          <p className="hero-subtitle">
+            Your virtual barista. Order coffee in English or Hindi.
+          </p>
+
+          {/* CTA Button */}
+          <button className="cta-button" onClick={onStartCall}>
+            <span className="button-text">Brew Coffee</span>
+            <svg className="arrow-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          {/* Feature Badges */}
+          <div className="feature-badges">
+            <div className="badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span>Real-time</span>
+            </div>
+            <div className="badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              </svg>
+              <span>Natural voice</span>
+            </div>
+            <div className="badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 7h-9"/>
+                <path d="M14 17H5"/>
+                <circle cx="17" cy="17" r="3"/>
+                <circle cx="7" cy="7" r="3"/>
+              </svg>
+              <span>Powered by Murf</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Animated grid overlay for depth */}
-      <div className="absolute inset-0 opacity-20">
-        <div 
-          className="h-full w-full"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
-            `,
-            backgroundSize: '80px 80px',
-            animation: 'gridMove 20s linear infinite',
-          }}
-        />
-      </div>
-
-      {/* Grid animation keyframes */}
       <style jsx>{`
-        @keyframes gridMove {
-          0% {
+        .welcome-container {
+          min-height: 100vh;
+          width: 100vw;
+          background: linear-gradient(180deg, #12B1C5 0%, #8FE4F9 50%, #FFF9EF 100%);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 32px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .content-wrapper {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          max-width: 600px;
+          width: 100%;
+          margin: 0 auto;
+        }
+
+        /* Coffee Cup Animation - Professional Design */
+        .coffee-cup-container {
+          margin-bottom: 48px;
+          animation: float 4s ease-in-out infinite;
+          filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15));
+          transition: transform 0.3s ease;
+        }
+
+        .coffee-cup-container:hover {
+          animation-play-state: paused;
+          transform: scale(1.05) translateY(-5px);
+        }
+
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          25% {
+            transform: translateY(-12px) rotate(-1deg);
+          }
+          50% {
+            transform: translateY(-8px) rotate(0deg);
+          }
+          75% {
+            transform: translateY(-12px) rotate(1deg);
+          }
+        }
+
+        .coffee-cup {
+          width: 200px;
+          height: 200px;
+          position: relative;
+          transform-style: preserve-3d;
+          animation: subtle-rotate 20s ease-in-out infinite;
+        }
+
+        @keyframes subtle-rotate {
+          0%, 100% {
+            transform: perspective(1000px) rotateY(0deg);
+          }
+          50% {
+            transform: perspective(1000px) rotateY(5deg);
+          }
+        }
+
+        /* Cup Rim - Enhanced 3D Effect */
+        .cup-rim {
+          position: absolute;
+          top: 25px;
+          left: 25px;
+          width: 150px;
+          height: 150px;
+          border-radius: 50%;
+          background: 
+            linear-gradient(145deg, #A0522D 0%, #8B4513 30%, #654321 70%, #4A2511 100%);
+          box-shadow: 
+            0 15px 45px rgba(0, 0, 0, 0.3),
+            0 5px 15px rgba(0, 0, 0, 0.2),
+            inset 0 -8px 15px rgba(0, 0, 0, 0.4),
+            inset 0 2px 5px rgba(255, 255, 255, 0.2),
+            inset -5px -5px 20px rgba(0, 0, 0, 0.3);
+          animation: cup-pulse 3s ease-in-out infinite;
+          position: relative;
+          overflow: visible;
+        }
+
+        .cup-rim::before {
+          content: '';
+          position: absolute;
+          inset: -3px;
+          border-radius: 50%;
+          background: linear-gradient(145deg, rgba(160, 82, 45, 0.4), transparent);
+          filter: blur(8px);
+          opacity: 0.6;
+          animation: glow-pulse 3s ease-in-out infinite;
+        }
+
+        .cup-rim::after {
+          content: '';
+          position: absolute;
+          top: 5%;
+          left: 15%;
+          width: 30%;
+          height: 25%;
+          background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.3), transparent);
+          border-radius: 50%;
+          filter: blur(8px);
+          animation: shine-move 4s ease-in-out infinite;
+        }
+
+        @keyframes cup-pulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.02);
+          }
+        }
+
+        @keyframes glow-pulse {
+          0%, 100% {
+            opacity: 0.4;
+          }
+          50% {
+            opacity: 0.7;
+          }
+        }
+
+        @keyframes shine-move {
+          0%, 100% {
             transform: translate(0, 0);
+            opacity: 0.3;
+          }
+          50% {
+            transform: translate(10px, -5px);
+            opacity: 0.5;
+          }
+        }
+
+        /* Coffee Surface - Realistic Liquid */
+        .coffee-surface {
+          position: absolute;
+          top: 38px;
+          left: 38px;
+          width: 124px;
+          height: 124px;
+          border-radius: 50%;
+          background: 
+            radial-gradient(circle at 35% 35%, #4A2511 0%, #3E2723 20%, #2C1810 50%, #1B0F0A 100%);
+          overflow: hidden;
+          box-shadow: 
+            inset 0 5px 15px rgba(0, 0, 0, 0.6),
+            inset 0 -3px 8px rgba(101, 67, 33, 0.3);
+          animation: coffee-shimmer 5s ease-in-out infinite;
+        }
+
+        .coffee-surface::before {
+          content: '';
+          position: absolute;
+          top: 10%;
+          left: 20%;
+          width: 40%;
+          height: 40%;
+          background: radial-gradient(ellipse at center, rgba(139, 69, 19, 0.2), transparent);
+          border-radius: 50%;
+          filter: blur(15px);
+          animation: coffee-highlight 4s ease-in-out infinite;
+        }
+
+        @keyframes coffee-shimmer {
+          0%, 100% {
+            filter: brightness(1) contrast(1);
+          }
+          50% {
+            filter: brightness(1.1) contrast(1.05);
+          }
+        }
+
+        @keyframes coffee-highlight {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.3;
+          }
+          50% {
+            transform: translate(5px, 5px) scale(1.1);
+            opacity: 0.5;
+          }
+        }
+
+        /* Enhanced Ripples - Multiple Layers */
+        .ripple {
+          position: absolute;
+          border-radius: 50%;
+          border: 2px solid rgba(139, 69, 19, 0.4);
+          box-shadow: 
+            0 0 10px rgba(139, 69, 19, 0.2),
+            inset 0 0 10px rgba(255, 255, 255, 0.1);
+          animation: ripple-animation 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        .ripple-1 {
+          top: 50%;
+          left: 50%;
+          width: 25px;
+          height: 25px;
+          margin: -12.5px 0 0 -12.5px;
+          animation-delay: 0s;
+        }
+
+        .ripple-2 {
+          top: 50%;
+          left: 50%;
+          width: 50px;
+          height: 50px;
+          margin: -25px 0 0 -25px;
+          animation-delay: 1.3s;
+          border-color: rgba(160, 82, 45, 0.3);
+        }
+
+        .ripple-3 {
+          top: 50%;
+          left: 50%;
+          width: 75px;
+          height: 75px;
+          margin: -37.5px 0 0 -37.5px;
+          animation-delay: 2.6s;
+          border-color: rgba(101, 67, 33, 0.25);
+        }
+
+        @keyframes ripple-animation {
+          0% {
+            transform: scale(0.5);
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          80% {
+            opacity: 0.3;
           }
           100% {
-            transform: translate(80px, 80px);
+            transform: scale(2);
+            opacity: 0;
+          }
+        }
+
+        /* Professional Steam Effect */
+        .steam {
+          position: absolute;
+          width: 4px;
+          height: 50px;
+          background: linear-gradient(
+            to top, 
+            rgba(255, 255, 255, 0.8) 0%,
+            rgba(255, 255, 255, 0.6) 30%,
+            rgba(255, 255, 255, 0.3) 60%,
+            transparent 100%
+          );
+          border-radius: 50%;
+          filter: blur(3px);
+          animation: steam-rise 3s ease-in-out infinite;
+          transform-origin: bottom center;
+        }
+
+        .steam::before {
+          content: '';
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          background: inherit;
+          filter: blur(5px);
+          opacity: 0.5;
+        }
+
+        .steam-1 {
+          left: 60px;
+          top: 8px;
+          animation-delay: 0s;
+        }
+
+        .steam-2 {
+          left: 85px;
+          top: 5px;
+          animation-delay: 1s;
+          height: 55px;
+        }
+
+        .steam-3 {
+          left: 110px;
+          top: 8px;
+          animation-delay: 2s;
+          height: 48px;
+        }
+
+        @keyframes steam-rise {
+          0% {
+            transform: translateY(0) translateX(0) scaleX(1);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.8;
+          }
+          50% {
+            opacity: 0.6;
+            transform: translateY(-35px) translateX(8px) scaleX(1.5);
+          }
+          80% {
+            opacity: 0.2;
+          }
+          100% {
+            transform: translateY(-60px) translateX(15px) scaleX(2);
+            opacity: 0;
+          }
+        }
+
+        /* Typography */
+        .hero-title {
+          font-size: 56px;
+          font-weight: 700;
+          color: #2A2A2A;
+          margin: 0 0 20px 0;
+          letter-spacing: -0.02em;
+          line-height: 1.1;
+        }
+
+        .hero-subtitle {
+          font-size: 20px;
+          color: rgba(42, 42, 42, 0.6);
+          line-height: 1.6;
+          margin: 0 0 48px 0;
+          max-width: 480px;
+          font-weight: 400;
+        }
+
+        /* CTA Button - Glassmorphism Pill Design */
+        .cta-button {
+          padding: 22px 52px;
+          background: rgba(139, 69, 19, 0.15);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          color: #2A2A2A;
+          border: 2px solid rgba(139, 69, 19, 0.25);
+          border-radius: 100px;
+          font-size: 20px;
+          font-weight: 700;
+          letter-spacing: 0.8px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          box-shadow: 
+            0 8px 32px rgba(139, 69, 19, 0.2),
+            0 4px 16px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.4),
+            inset 0 -1px 0 rgba(139, 69, 19, 0.2);
+          transition: all 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+          text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+          margin-bottom: 48px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .button-text {
+          position: relative;
+          z-index: 2;
+          font-weight: 700;
+        }
+
+        /* Frosted glass shimmer effect */
+        .cta-button::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 100px;
+          background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.4) 0%,
+            rgba(139, 69, 19, 0.1) 50%,
+            rgba(255, 255, 255, 0.3) 100%
+          );
+          opacity: 0.6;
+          transition: opacity 500ms ease;
+          pointer-events: none;
+        }
+
+        /* Animated light sweep */
+        .cta-button::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -100%;
+          width: 80%;
+          height: 200%;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.6) 50%,
+            transparent 100%
+          );
+          transform: skewX(-25deg);
+          animation: glass-shine 4s ease-in-out infinite;
+        }
+
+        @keyframes glass-shine {
+          0%, 100% {
+            left: -100%;
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          50% {
+            left: 150%;
+            opacity: 0.8;
+          }
+          100% {
+            left: 150%;
+            opacity: 0;
+          }
+        }
+
+        /* Hover state - Enhanced glass effect */
+        .cta-button:hover {
+          transform: translateY(-8px) scale(1.05);
+          background: rgba(139, 69, 19, 0.25);
+          border-color: rgba(139, 69, 19, 0.4);
+          box-shadow: 
+            0 16px 48px rgba(139, 69, 19, 0.3),
+            0 8px 24px rgba(0, 0, 0, 0.15),
+            inset 0 2px 0 rgba(255, 255, 255, 0.5),
+            inset 0 -2px 0 rgba(139, 69, 19, 0.3),
+            0 0 60px rgba(139, 69, 19, 0.15);
+        }
+
+        .cta-button:hover::before {
+          opacity: 0.9;
+        }
+
+        .cta-button:hover .arrow-icon {
+          transform: translateX(8px) rotate(0deg);
+          animation: arrow-bounce 0.6s ease-in-out infinite;
+        }
+
+        @keyframes arrow-bounce {
+          0%, 100% {
+            transform: translateX(8px) rotate(0deg);
+          }
+          50% {
+            transform: translateX(12px) rotate(0deg);
+          }
+        }
+
+        /* Active/pressed state */
+        .cta-button:active {
+          transform: translateY(-2px) scale(1.02);
+          background: rgba(139, 69, 19, 0.3);
+          box-shadow: 
+            0 4px 20px rgba(139, 69, 19, 0.25),
+            inset 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Focus state for accessibility */
+        .cta-button:focus-visible {
+          outline: 3px solid rgba(139, 69, 19, 0.5);
+          outline-offset: 5px;
+        }
+
+        /* Unique arrow icon with animation */
+        .arrow-icon {
+          transition: all 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+          stroke-width: 2.5;
+          position: relative;
+          z-index: 2;
+        }
+
+        /* Breathing glow animation */
+        @keyframes glass-glow {
+          0%, 100% {
+            box-shadow: 
+              0 8px 32px rgba(139, 69, 19, 0.2),
+              0 4px 16px rgba(0, 0, 0, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.4);
+          }
+          50% {
+            box-shadow: 
+              0 12px 40px rgba(139, 69, 19, 0.3),
+              0 6px 20px rgba(0, 0, 0, 0.12),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5),
+              0 0 40px rgba(139, 69, 19, 0.1);
+          }
+        }
+
+        .cta-button {
+          animation: glass-glow 4s ease-in-out infinite;
+        }
+
+        /* Feature Badges */
+        .feature-badges {
+          display: flex;
+          gap: 16px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .badge {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 20px;
+          background: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 50px;
+          font-size: 14px;
+          color: #2A2A2A;
+          font-weight: 500;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          animation: badge-float 3s ease-in-out infinite;
+        }
+
+        .badge:nth-child(1) {
+          animation-delay: 0s;
+        }
+
+        .badge:nth-child(2) {
+          animation-delay: 0.5s;
+        }
+
+        .badge:nth-child(3) {
+          animation-delay: 1s;
+        }
+
+        @keyframes badge-float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-4px);
+          }
+        }
+
+        .badge svg {
+          color: #12B1C5;
+        }
+
+        /* Responsive - Mobile Optimized */
+        @media (max-width: 768px) {
+          .welcome-container {
+            padding: 24px 20px;
+            justify-content: center;
+          }
+
+          .content-wrapper {
+            margin: 0;
+            padding: 0;
+          }
+
+          .coffee-cup-container {
+            margin-bottom: 36px;
+          }
+
+          .coffee-cup {
+            width: 140px;
+            height: 140px;
+          }
+
+          .cup-rim {
+            top: 17.5px;
+            left: 17.5px;
+            width: 105px;
+            height: 105px;
+          }
+
+          .coffee-surface {
+            top: 26.6px;
+            left: 26.6px;
+            width: 86.8px;
+            height: 86.8px;
+          }
+
+          .steam {
+            height: 35px;
+          }
+
+          .steam-1 {
+            left: 42px;
+            top: 6px;
+          }
+
+          .steam-2 {
+            left: 59.5px;
+            top: 3.5px;
+            height: 38.5px;
+          }
+
+          .steam-3 {
+            left: 77px;
+            top: 6px;
+            height: 33.6px;
+          }
+
+          .ripple-1 {
+            width: 17.5px;
+            height: 17.5px;
+            margin: -8.75px 0 0 -8.75px;
+          }
+
+          .ripple-2 {
+            width: 35px;
+            height: 35px;
+            margin: -17.5px 0 0 -17.5px;
+          }
+
+          .ripple-3 {
+            width: 52.5px;
+            height: 52.5px;
+            margin: -26.25px 0 0 -26.25px;
+          }
+
+          .hero-title {
+            font-size: 38px;
+          }
+
+          .hero-subtitle {
+            font-size: 17px;
+            margin-bottom: 36px;
+          }
+
+          .cta-button {
+            padding: 16px 32px;
+            font-size: 16px;
+          }
+
+          .feature-badges {
+            gap: 12px;
+          }
+
+          .badge {
+            padding: 10px 16px;
+            font-size: 13px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .welcome-container {
+            padding: 20px 16px;
+          }
+
+          .content-wrapper {
+            max-width: 100%;
+          }
+
+          .coffee-cup-container {
+            margin-bottom: 28px;
+          }
+
+          .coffee-cup {
+            width: 120px;
+            height: 120px;
+          }
+
+          .cup-rim {
+            top: 15px;
+            left: 15px;
+            width: 90px;
+            height: 90px;
+          }
+
+          .coffee-surface {
+            top: 22.8px;
+            left: 22.8px;
+            width: 74.4px;
+            height: 74.4px;
+          }
+
+          .steam {
+            height: 30px;
+            width: 3px;
+          }
+
+          .steam-1 {
+            left: 36px;
+            top: 5px;
+          }
+
+          .steam-2 {
+            left: 51px;
+            top: 3px;
+            height: 33px;
+          }
+
+          .steam-3 {
+            left: 66px;
+            top: 5px;
+            height: 28.8px;
+          }
+
+          .hero-title {
+            font-size: 32px;
+            margin-bottom: 16px;
+          }
+
+          .hero-subtitle {
+            font-size: 16px;
+            margin-bottom: 32px;
+            padding: 0 8px;
+          }
+
+          .cta-button {
+            margin-bottom: 32px;
+          }
+
+          .feature-badges {
+            gap: 10px;
+          }
+
+          .badge {
+            padding: 8px 14px;
+            font-size: 12px;
+          }
+
+          .badge svg {
+            width: 14px;
+            height: 14px;
           }
         }
       `}</style>
-
-      <section className="relative z-10 flex h-full flex-col items-center justify-center px-4">
-        {/* Elegant pulsing orb with chat icon */}
-        <div className="relative mb-16">
-          {/* Outer pulsing rings */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="absolute h-32 w-32 md:h-40 md:w-40 rounded-full border-2 border-cyan-400/20 animate-pulse" style={{ animationDuration: '2s' }} />
-            <div className="absolute h-40 w-40 md:h-48 md:w-48 rounded-full border border-cyan-400/10 animate-pulse" style={{ animationDuration: '3s', animationDelay: '0.5s' }} />
-            <div className="absolute h-48 w-48 md:h-56 md:w-56 rounded-full border border-purple-400/10 animate-pulse" style={{ animationDuration: '4s', animationDelay: '1s' }} />
-          </div>
-          
-          {/* Center orb */}
-          <div className="relative h-24 w-24 md:h-28 md:w-28 rounded-full bg-gradient-to-br from-cyan-400/90 to-purple-500/90 flex items-center justify-center shadow-2xl shadow-cyan-500/50">
-            {/* Inner glow */}
-            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-white/40 to-transparent" />
-            
-            {/* Sound wave bars */}
-            <svg className="relative z-10 w-12 h-12 md:w-14 md:h-14 text-white" viewBox="0 0 48 48" fill="currentColor">
-              <rect x="4" y="18" width="4" height="12" rx="2" className="animate-pulse" style={{ animationDuration: '1s', animationDelay: '0s' }}/>
-              <rect x="12" y="12" width="4" height="24" rx="2" className="animate-pulse" style={{ animationDuration: '1s', animationDelay: '0.1s' }}/>
-              <rect x="20" y="8" width="4" height="32" rx="2" className="animate-pulse" style={{ animationDuration: '1s', animationDelay: '0.2s' }}/>
-              <rect x="28" y="14" width="4" height="20" rx="2" className="animate-pulse" style={{ animationDuration: '1s', animationDelay: '0.3s' }}/>
-              <rect x="36" y="10" width="4" height="28" rx="2" className="animate-pulse" style={{ animationDuration: '1s', animationDelay: '0.4s' }}/>
-            </svg>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="text-center space-y-6 max-w-2xl">
-          <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight">
-            Start a conversation
-          </h1>
-          
-          <p className="text-lg md:text-xl text-gray-400 font-light max-w-md mx-auto">
-            Speak naturally with AI that understands and responds in real-time
-          </p>
-        </div>
-
-        {/* Action button */}
-        <button
-          onClick={onStartCall}
-          className="mt-12 group relative px-8 py-4 bg-white rounded-full flex items-center gap-3 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-        >
-          {/* Glow effect on hover */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full blur opacity-0 group-hover:opacity-40 transition duration-300" />
-          
-          <span className="relative z-10 text-gray-900 font-semibold text-base">
-            {startButtonText}
-          </span>
-          <svg className="relative z-10 w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-
-        {/* Features */}
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-8 text-sm text-gray-500">
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span>Real-time responses</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span>Natural voice</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span>Powered by Murf Falcon</span>
-          </div>
-        </div>
-      </section>
-    </div>
+    </>
   );
 };

@@ -1,0 +1,11 @@
+{
+  "drinkType": "Latte",
+  "size": "medium",
+  "milk": "regular",
+  "extras": [
+    "extra shot"
+  ],
+  "name": "Ram",
+  "timestamp": "2025-11-23T10:37:21.972233",
+  "status": "confirmed"
+}
