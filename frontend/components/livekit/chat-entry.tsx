@@ -38,26 +38,33 @@ export const ChatEntry = ({
     >
       <header
         className={cn(
-          'text-muted-foreground flex items-center gap-2 text-sm',
+          'flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm mb-1.5',
           messageOrigin === 'local' ? 'flex-row-reverse' : 'text-left'
         )}
       >
-        {name && <strong>{name}</strong>}
-        <span className="font-mono text-xs opacity-0 transition-opacity ease-linear group-hover:opacity-100">
+        {name && (
+          <strong className={cn(
+            'font-semibold',
+            messageOrigin === 'local' ? 'text-[#FF6B6B]' : 'text-[#10B981]'
+          )}>
+            {name}
+          </strong>
+        )}
+        <span className="font-mono text-[10px] sm:text-xs text-gray-400 opacity-70 sm:opacity-0 transition-opacity ease-linear sm:group-hover:opacity-100">
           {hasBeenEdited && '*'}
           {time.toLocaleTimeString(locale, { timeStyle: 'short' })}
         </span>
       </header>
-      <span
+      <div
         className={cn(
-          'max-w-4/5 rounded-[20px] px-4 py-2',
+          'max-w-[85%] sm:max-w-[75%] rounded-[18px] sm:rounded-[20px] px-4 py-2.5 sm:px-5 sm:py-3 text-sm sm:text-base break-words leading-relaxed shadow-sm',
           messageOrigin === 'local' 
-            ? 'glass ml-auto border border-cyan-400/20 text-cyan-100' 
-            : 'glass mr-auto border border-white/10'
+            ? 'ml-auto bg-[#FF6B6B] text-white' 
+            : 'mr-auto bg-gray-100 text-gray-900'
         )}
       >
         {message}
-      </span>
+      </div>
     </li>
   );
 };

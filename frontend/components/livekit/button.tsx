@@ -17,16 +17,16 @@ const buttonVariants = cva(
       variant: {
         default: 'glass text-foreground hover:bg-white/10 focus:bg-white/10 border border-white/10',
         destructive: [
-          'glass bg-destructive/20 text-destructive border border-destructive/30',
-          'hover:bg-destructive/30 focus:bg-destructive/30 focus-visible:ring-destructive/20',
-          'dark:focus-visible:ring-destructive/40',
+          'bg-[#FF6B6B] text-white border-0',
+          'hover:bg-[#FF5252] focus:bg-[#FF5252]',
+          'shadow-md hover:shadow-lg transition-all',
         ],
         outline: [
           'glass border border-white/15',
           'hover:bg-white/10 hover:border-white/20',
         ],
         primary: 'glass bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 hover:bg-cyan-500/30 focus:bg-cyan-500/30',
-        secondary: 'glass bg-white/5 text-secondary-foreground hover:bg-white/10 border border-white/10',
+        secondary: 'bg-white/30 backdrop-blur-sm text-gray-700 hover:bg-white/40 border border-white/40 shadow-sm',
         ghost: 'hover:bg-white/5 hover:text-accent-foreground',
         link: 'text-cyan-400 underline-offset-4 hover:underline',
       },

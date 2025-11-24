@@ -4,11 +4,11 @@ import { useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRoomContext } from '@livekit/components-react';
 import { useSession } from '@/components/app/session-provider';
-import { BlueTokaSessionView } from '@/components/app/blue-tokai-session';
-import { WelcomeView } from '@/components/app/welcome-view';
+import { DefaultSessionView } from '@/components/app/default-session';
+import { WellnessWelcome } from '@/components/app/wellness-welcome';
 
-const MotionWelcomeView = motion.create(WelcomeView);
-const MotionSessionView = motion.create(BlueTokaSessionView);
+const MotionWelcomeView = motion.create(WellnessWelcome);
+const MotionSessionView = motion.create(DefaultSessionView);
 
 const VIEW_MOTION_PROPS = {
   variants: {

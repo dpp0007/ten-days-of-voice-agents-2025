@@ -10,3 +10,10 @@ KMS
 *.egg-info
 .pytest_cache
 .ruff_cache
+
+# Wellness data
+wellness_data/*.json
+!wellness_data/.gitkeep
+
+# Orders data (from previous coffee agent)
+orders/

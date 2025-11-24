@@ -6,7 +6,7 @@ import type { AppConfig } from '@/app-config';
 import { SessionProvider } from '@/components/app/session-provider';
 import { ViewController } from '@/components/app/view-controller';
 import { Toaster } from '@/components/livekit/toaster';
-import { CoffeeLoader } from '@/components/app/coffee-loader';
+import { WellnessLoader } from '@/components/app/wellness-loader';
 
 interface AppProps {
   appConfig: AppConfig;
@@ -25,11 +25,7 @@ export function App({ appConfig }: AppProps) {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center bg-gradient-to-b from-[#12B1C5] via-[#8FE4F9] to-[#FFF9EF]">
-        <CoffeeLoader />
-      </div>
-    );
+    return <WellnessLoader />;
   }
 
   return (

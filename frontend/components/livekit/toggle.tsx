@@ -24,7 +24,7 @@ const toggleVariants = cva(
         primary:
           'glass border border-white/10 hover:bg-white/10 text-destructive hover:text-foreground data-[state=on]:bg-white/15',
         secondary:
-          'glass border border-white/10 hover:bg-white/10 data-[state=on]:bg-cyan-500/20 data-[state=on]:border-cyan-400/30 data-[state=on]:hover:bg-cyan-500/30 data-[state=on]:text-cyan-300',
+          'bg-white/30 backdrop-blur-sm border border-white/40 hover:bg-white/40 text-gray-700 data-[state=on]:bg-[#FF6B6B] data-[state=on]:border-[#FF6B6B] data-[state=on]:text-white shadow-sm',
         outline:
           'glass border border-white/15 hover:bg-white/10 hover:border-white/20',
       },

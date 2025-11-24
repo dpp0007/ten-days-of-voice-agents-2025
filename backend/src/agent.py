@@ -21,482 +21,529 @@ from datetime import datetime
 from typing import Optional
 from livekit.plugins import murf, silero, google, deepgram, noise_cancellation
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
+from todoist_handler import TodoistHandler
+from notion_handler import NotionHandler
 
 logger = logging.getLogger("agent")
 
 load_dotenv(".env.local")
 
 
-class CoffeeBarista(Agent):
+class WellnessCompanion(Agent):
     def __init__(self) -> None:
         super().__init__(
-            instructions="""You are a multilingual, witty virtual barista for BLUE TOKAI COFFEE ROASTERS. Your single goal is to take coffee orders via conversation, fill an internal order state, confirm it with the customer, and then save the final order.
+            instructions="""You are a calm, supportive wellness check-in companion. Guide users through a brief daily check-in.
 
-PERSONA & TONE:
-- You are friendly, slightly witty, and warm with an Indian English speaking style
-- Use a conversational, upbeat tone with occasional playful comments
-- Speak ONLY in English - no Hindi or Hinglish words
-- Keep jokes light and never be rude or harsh
-- Examples: "What would you like today – a strong espresso or a chill cold brew?" or "Got it, one medium latte coming right up!"
+WORKFLOW:
+1. Ask: "How are you feeling today?" → When they answer, call record_mood(mood)
+2. Ask: "What's your energy like?" → When they answer, call record_energy(energy)  
+3. Ask about goals (see GOAL GUIDANCE below) → When they answer, call record_objectives(objectives)
+4. After recap, when user confirms → call save_wellness_entry()
+5. After saving, ask: "Would you like me to create tasks in Todoist? And should I save this to Notion?"
+   - If user says yes to tasks → call create_tasks_from_goals()
+   - If user says yes to Notion → call save_to_notion()
+   - If user says yes to both → call both functions
+   - If user says no → thank them and end conversation
 
-BRAND CONTEXT:
-- You work at BLUE TOKAI COFFEE ROASTERS
-- Reference "our roasts", "Blue Tokai brews", "signature cold brews"
-- Menu: Espresso, Americano, Cappuccino, Latte, Flat White, Mocha, Cold Brew, Iced Latte, Frappé, Hot Chocolate
-- Accept custom drinks too
+WEEKLY REFLECTION:
+When user asks about their week, call get_weekly_summary(). Trigger phrases:
+- "How was my week?"
+- "Show me my weekly summary"
+- "How am I doing this week?"
+- "What were my moods this week?"
+- "How's my progress?"
 
-LANGUAGE BEHAVIOR:
-- Speak ONLY in English with an Indian conversational style
-- Use natural Indian English expressions and phrasing
-- Be warm and friendly but stick to English only
-- Examples: "What would you like today?", "That's great!", "One medium latte", "What's your name?"
-- Keep it conversational and fun but entirely in English
+TASK CREATION:
+When user asks to create tasks, call create_tasks_from_goals(). Trigger phrases:
+- "Turn these goals into tasks"
+- "Add these to my to-do list"
+- "Create tasks for these"
+- "Add to Todoist"
+- "Make these into tasks"
 
-ORDER STATE MANAGEMENT:
-You maintain an internal order with these fields:
-- drinkType: type of coffee drink
-- size: "small", "medium", or "large"
-- milk: "regular", "skim", "oat", "soy", "almond"
-- extras: array of extras like "extra shot", "vanilla syrup", "caramel drizzle", "whipped cream"
-- name: customer's name
+SAVE TO NOTION:
+When user asks to save to Notion, call save_to_notion(). Trigger phrases:
+- "Save this to Notion"
+- "Add to Notion"
+- "Save to my Notion"
+- "Put this in Notion"
 
-CONVERSATION FLOW:
-1. Ask for name first: "What's your name?"
-2. Ask drink type: "What are you in the mood for today? Latte, cappuccino, cold brew?"
-3. Ask size: If not specified, default to "medium" but confirm: "What size would you like - small, medium, or large?"
-4. Ask milk: If not specified, default to "regular milk" but confirm: "What kind of milk would you prefer? Regular, oat, almond, soy?"
-5. Ask extras: "Would you like any extras? Extra shot, vanilla syrup, whipped cream?"
-6. Recap the complete order clearly in English
-7. Ask for confirmation: "Does that sound good? Should I confirm this order?"
-8. CRITICAL: After user says YES/confirms, you MUST immediately call the save_order function tool. DO NOT just say "confirmed" - you must actually call save_order()
-9. Only after calling save_order successfully, tell the customer their order is confirmed
+GOAL GUIDANCE:
+When asking about goals, guide users toward small, practical, achievable actions rather than emotional states.
 
-CLARIFYING QUESTIONS:
-- Ask one or two things at a time to keep it natural
-- If user provides multiple details at once, extract them and only ask about missing fields
-- If user changes their mind, update only that field
+Say: "Let's set 1-3 small, realistic goals for today. These should be simple actions you can actually do, not emotional outcomes."
 
-ERROR HANDLING:
-- If input is unclear, politely ask again
-- If user is off-topic too long, gently bring them back: "I'm loving this chat, but let's get your coffee order sorted out!"
+If the user gives a vague or emotional goal like "I want to be happy" or "I want to feel better," gently help them convert it into a specific action:
+- "That makes sense. What's one small action you could take today that might help you feel a little more grounded or supported?"
+- "Let's think of a practical step you can take toward that. Maybe a short walk, finishing a small task, taking a break, drinking water, or anything small that feels doable. What would you like to pick?"
 
-IMPORTANT:
-- Keep responses natural and conversational for voice interaction
-- Don't use complex formatting, emojis, or markdown in your speech
-- Use the function tools to manage order state
-- Only call save_order after explicit user confirmation""",
+Your goal is to help the user define 1-3 actionable steps they can do today. Avoid judging their emotional goal — help them turn it into something concrete and manageable.
+
+TONE:
+- Warm, calm, and supportive
+- Keep responses short and natural
+- Use phrases like "Thanks for sharing" and "That makes sense"
+- Never give medical advice
+
+IMPORTANT: Always call the function tools when the user provides information. The functions will handle the next steps.""",
         )
         
-        # Initialize order state
-        self.order_state = {
-            "drinkType": "",
-            "size": "",
-            "milk": "",
-            "extras": [],
-            "name": ""
+        # Initialize wellness state
+        self.wellness_state = {
+            "mood": "",
+            "energy": "",
+            "objectives": [],
+            "summary": ""
         }
+        
+        # Load previous entries
+        self.previous_entries = self._load_previous_entries()
 
+    def _load_previous_entries(self) -> list:
+        """Load previous wellness entries from JSON file."""
+        wellness_file = "wellness_data/wellness_log.json"
+        try:
+            if os.path.exists(wellness_file):
+                with open(wellness_file, 'r') as f:
+                    return json.load(f)
+        except Exception as e:
+            logger.error(f"Error loading wellness log: {e}")
+        return []
+    
     async def on_enter(self) -> None:
-        """Called when the agent starts - greet the customer"""
-        await self.session.say("Hello! Welcome to Blue Tokai Coffee Roasters. I'm your virtual barista today. What's your name, and what kind of coffee are you in the mood for?")
-    
-    def _generate_token_number(self) -> str:
-        """Generate a unique token number for the order."""
-        import random
-        import string
-        # Format: BT-YYYYMMDD-XXXX (BT = Blue Tokai, XXXX = random alphanumeric)
-        date_part = datetime.now().strftime("%Y%m%d")
-        random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
-        return f"BT-{date_part}-{random_part}"
-    
-    def _generate_html_receipt(self, order_data: dict, token_number: str) -> str:
-        """Generate an HTML receipt visualization for the order."""
+        """Called when the agent starts - greet the user"""
+        # Start with a simple, warm greeting and first question
+        greeting = "Hi! Let's do a quick check-in. How are you feeling today?"
         
-        # Determine cup size for visualization
-        cup_heights = {"small": "100px", "medium": "140px", "large": "180px"}
-        cup_height = cup_heights.get(order_data["size"], "140px")
+        # Optionally reference previous entry
+        if self.previous_entries:
+            last_entry = self.previous_entries[-1]
+            if "energy" in last_entry and last_entry["energy"]:
+                energy_level = last_entry['energy']
+                # Don't duplicate "energy" if it's already in the value
+                if "energy" in energy_level.lower():
+                    greeting = f"Hi! Good to see you again. Last time you mentioned {energy_level}. How are you feeling today?"
+                else:
+                    greeting = f"Hi! Good to see you again. Last time you mentioned {energy_level} energy. How are you feeling today?"
         
-        # Check if it's a cold drink
-        is_cold = any(word in order_data["drinkType"].lower() for word in ["iced", "cold", "frappe"])
-        cup_color = "#87CEEB" if is_cold else "#8B4513"
-        
-        # Check for whipped cream
-        has_whipped_cream = any("whipped" in extra.lower() for extra in order_data.get("extras", []))
-        
-        # Build extras list
-        extras_html = ""
-        if order_data.get("extras"):
-            extras_items = "".join([f"<li>{extra}</li>" for extra in order_data["extras"]])
-            extras_html = f"<div style='margin-top: 10px;'><strong>Extras:</strong><ul style='margin: 5px 0; padding-left: 20px;'>{extras_items}</ul></div>"
-        
-        # Whipped cream topping
-        whipped_cream_html = ""
-        if has_whipped_cream:
-            whipped_cream_html = """
-            <div style='position: absolute; top: -20px; left: 50%; transform: translateX(-50%); 
-                        width: 80px; height: 30px; background: #FFFACD; 
-                        border-radius: 50% 50% 0 0; border: 2px solid #F5DEB3;'></div>
-            """
-        
-        html = f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blue Tokai Order - {order_data['name']}</title>
-    <style>
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }}
-        .receipt {{
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
-            width: 100%;
-        }}
-        .header {{
-            text-align: center;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }}
-        .header h1 {{
-            color: #667eea;
-            margin: 0;
-            font-size: 28px;
-        }}
-        .header p {{
-            color: #666;
-            margin: 5px 0 0 0;
-            font-size: 14px;
-        }}
-        .token-number {{
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin: 15px 0;
-            display: inline-block;
-        }}
-        .cup-container {{
-            display: flex;
-            justify-content: center;
-            margin: 30px 0;
-            position: relative;
-        }}
-        .cup {{
-            position: relative;
-            width: 100px;
-            height: {cup_height};
-            background: {cup_color};
-            border-radius: 0 0 20px 20px;
-            border: 3px solid #333;
-            box-shadow: inset 0 -20px 30px rgba(0,0,0,0.2);
-        }}
-        .order-details {{
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }}
-        .order-row {{
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #dee2e6;
-        }}
-        .order-row:last-child {{
-            border-bottom: none;
-        }}
-        .label {{
-            font-weight: 600;
-            color: #495057;
-        }}
-        .value {{
-            color: #212529;
-            text-transform: capitalize;
-        }}
-        .footer {{
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #dee2e6;
-        }}
-        .footer h2 {{
-            color: #667eea;
-            margin: 0 0 10px 0;
-            font-size: 24px;
-        }}
-        .footer p {{
-            color: #666;
-            margin: 5px 0;
-            font-size: 14px;
-        }}
-        .timestamp {{
-            text-align: center;
-            color: #999;
-            font-size: 12px;
-            margin-top: 20px;
-        }}
-    </style>
-</head>
-<body>
-    <div class="receipt">
-        <div class="header">
-            <h1>☕ BLUE TOKAI</h1>
-            <p>Coffee Roasters</p>
-            <div class="token-number">Token: {token_number}</div>
-        </div>
-        
-        <div class="cup-container">
-            <div class="cup">
-                {whipped_cream_html}
-            </div>
-        </div>
-        
-        <div class="order-details">
-            <div class="order-row">
-                <span class="label">Customer:</span>
-                <span class="value">{order_data['name']}</span>
-            </div>
-            <div class="order-row">
-                <span class="label">Drink:</span>
-                <span class="value">{order_data['drinkType']}</span>
-            </div>
-            <div class="order-row">
-                <span class="label">Size:</span>
-                <span class="value">{order_data['size']}</span>
-            </div>
-            <div class="order-row">
-                <span class="label">Milk:</span>
-                <span class="value">{order_data['milk']}</span>
-            </div>
-            {extras_html}
-        </div>
-        
-        <div class="footer">
-            <h2>Order Confirmed!</h2>
-            <p>Your coffee will be ready shortly</p>
-            <p style="color: #667eea; font-weight: 600;">Enjoy your brew! ☕</p>
-        </div>
-        
-        <div class="timestamp">
-            Order placed: {order_data['timestamp']}
-        </div>
-    </div>
-</body>
-</html>
-"""
-        return html
-
-    @function_tool()
-    async def set_name(self, context: RunContext, name: str) -> str:
-        """Set the customer's name for the order.
-        
-        Args:
-            name: Customer's name
-        """
-        self.order_state["name"] = name
-        logger.info(f"Set name: {name}")
-        
-        if not self.order_state["drinkType"]:
-            return f"Nice to meet you, {name}! What are you in the mood for? Latte, cappuccino, cold brew, mocha, something else?"
-        return f"Got it, {name}!"
-
-    @function_tool()
-    async def set_drink_type(self, context: RunContext, drink_type: str) -> str:
-        """Set the drink type in the order.
-        
-        Args:
-            drink_type: The type of coffee drink (e.g., latte, cappuccino, espresso, americano, mocha, cold brew, iced latte)
-        """
-        self.order_state["drinkType"] = drink_type
-        logger.info(f"Set drink type: {drink_type}")
-        
-        if not self.order_state["size"]:
-            return f"Great choice! What size would you like - small, medium, or large?"
-        return f"Changed to {drink_type}!"
-
-    @function_tool()
-    async def set_size(self, context: RunContext, size: str) -> str:
-        """Set the size of the drink.
-        
-        Args:
-            size: The size of the drink - must be "small", "medium", or "large"
-        """
-        size = size.lower()
-        if size not in ["small", "medium", "large"]:
-            size = "medium"
-        
-        self.order_state["size"] = size
-        logger.info(f"Set size: {size}")
-        
-        if not self.order_state["milk"]:
-            return f"Perfect, a {size} {self.order_state['drinkType']}. What kind of milk - regular, oat, almond, soy, or skim?"
-        return f"Changed to {size}!"
-
-    @function_tool()
-    async def set_milk(self, context: RunContext, milk: str) -> str:
-        """Set the milk preference.
-        
-        Args:
-            milk: Type of milk - "regular", "skim", "oat", "almond", "soy", or "none"
-        """
-        self.order_state["milk"] = milk.lower()
-        logger.info(f"Set milk: {milk}")
-        
-        if not self.order_state["extras"] and self.order_state["name"]:
-            return f"Great! {milk} milk it is. Koi extras chahiye? Extra shot, vanilla syrup, caramel, whipped cream? Ya simple hi?"
-        return f"Changed to {milk} milk!"
-
-    @function_tool()
-    async def add_extras(self, context: RunContext, extras: str) -> str:
-        """Add extras to the order.
-        
-        Args:
-            extras: Comma-separated list of extras (e.g., "extra shot, vanilla syrup, whipped cream")
-        """
-        extras_list = [e.strip() for e in extras.split(",")]
-        self.order_state["extras"] = extras_list
-        logger.info(f"Set extras: {extras_list}")
-        return f"Added {', '.join(extras_list)}!"
-
-    @function_tool()
-    async def no_extras(self, context: RunContext) -> str:
-        """Call this when customer doesn't want any extras."""
-        self.order_state["extras"] = []
-        logger.info("No extras requested")
-        return "No problem, keeping it simple!"
+        await self.session.say(greeting)
     
     @function_tool()
-    async def confirm_order(self, context: RunContext) -> str:
-        """Confirm the complete order with the customer before saving. Call this to recap all order details."""
+    async def record_mood(self, context: RunContext, mood: str) -> str:
+        """Record the user's current mood.
         
-        # Check if all required fields are filled
-        missing = []
-        if not self.order_state["name"]:
-            missing.append("name")
-        if not self.order_state["drinkType"]:
-            missing.append("drink type")
-        if not self.order_state["size"]:
-            missing.append("size")
-        if not self.order_state["milk"]:
-            missing.append("milk preference")
+        Args:
+            mood: User's mood description (e.g., "good", "tired", "stressed", "happy", "anxious")
+        """
+        self.wellness_state["mood"] = mood
+        logger.info(f"Recorded mood: {mood}")
+        # Acknowledge and move to next question
+        return "Thanks for sharing that. What's your energy like right now?"
+
+    @function_tool()
+    async def record_energy(self, context: RunContext, energy: str) -> str:
+        """Record the user's energy level.
         
-        if missing:
-            return f"I still need: {', '.join(missing)}. Let me know those details."
+        Args:
+            energy: User's energy level (e.g., "high", "low", "medium", "drained", "energized")
+        """
+        self.wellness_state["energy"] = energy
+        logger.info(f"Recorded energy: {energy}")
+        # Acknowledge and move to goals with actionable framing
+        return "That makes sense. Let's set 1 to 3 small, realistic goals for today. These should be simple actions you can actually do. What would you like to get done?"
+
+    @function_tool()
+    async def record_objectives(self, context: RunContext, objectives: str) -> str:
+        """Record the user's daily objectives or goals.
         
-        # Build confirmation message
-        extras_text = ""
-        if self.order_state["extras"]:
-            extras_text = f" with {', '.join(self.order_state['extras'])}"
+        Args:
+            objectives: Comma-separated list of goals (e.g., "finish report, go for a walk, call mom")
+        """
+        objectives_list = [obj.strip() for obj in objectives.split(",")]
+        self.wellness_state["objectives"] = objectives_list
+        logger.info(f"Recorded objectives: {objectives_list}")
         
-        confirmation = (
-            f"Alright, here's your order: "
-            f"A {self.order_state['size']} {self.order_state['drinkType']} "
-            f"with {self.order_state['milk']} milk{extras_text} "
-            f"for {self.order_state['name']}. "
-            f"Sab theek hai? Should I lock this in?"
+        # Check if we have everything
+        if self.wellness_state["mood"] and self.wellness_state["energy"]:
+            # Provide recap
+            objectives_text = ", ".join(self.wellness_state["objectives"])
+            energy_text = self.wellness_state['energy']
+            
+            # Don't duplicate "energy" if it's already in the value
+            if "energy" in energy_text.lower():
+                energy_phrase = energy_text
+            else:
+                energy_phrase = f"{energy_text} energy"
+            
+            recap = (
+                f"You're doing well by checking in. "
+                f"So you're feeling {self.wellness_state['mood']} with {energy_phrase}, "
+                f"and your goals today are: {objectives_text}. Does that sound right?"
+            )
+            return recap
+        
+        return "Thanks for sharing. Let me know if there's anything else."
+
+    @function_tool()
+    async def provide_recap(self, context: RunContext) -> str:
+        """Provide a recap of the wellness check-in before saving."""
+        
+        if not self.wellness_state["mood"] or not self.wellness_state["energy"]:
+            return "I still need to know your mood and energy level. Can you share those?"
+        
+        if not self.wellness_state["objectives"]:
+            return "What about your goals for today? Anything you'd like to accomplish?"
+        
+        # Build recap
+        objectives_text = ", ".join(self.wellness_state["objectives"])
+        energy_text = self.wellness_state['energy']
+        
+        # Don't duplicate "energy" if it's already in the value
+        if "energy" in energy_text.lower():
+            energy_phrase = energy_text
+        else:
+            energy_phrase = f"{energy_text} energy"
+        
+        recap = (
+            f"You're feeling {self.wellness_state['mood']} with {energy_phrase}. "
+            f"Your goals today are: {objectives_text}. "
+            f"Does this sound right?"
         )
         
-        logger.info(f"Order confirmation: {self.order_state}")
-        return confirmation
+        logger.info(f"Wellness recap: {self.wellness_state}")
+        return recap
 
     @function_tool()
-    async def save_order(self, context: RunContext) -> str:
-        """CRITICAL: Save the complete order to a JSON file and send HTML receipt to frontend. 
-        You MUST call this function immediately after the customer confirms their order (says yes/okay/confirm).
-        DO NOT just say the order is confirmed - you must actually call this function to save it."""
+    async def save_wellness_entry(self, context: RunContext) -> str:
+        """Save the wellness check-in entry to JSON file.
+        Call this after the user confirms the recap is correct."""
         
-        # Validate all fields are filled
+        # Validate required fields
         if not all([
-            self.order_state["name"],
-            self.order_state["drinkType"],
-            self.order_state["size"],
-            self.order_state["milk"]
+            self.wellness_state["mood"],
+            self.wellness_state["energy"],
+            self.wellness_state["objectives"]
         ]):
-            return "I can't save the order yet - some details are missing. Let me confirm everything first."
+            return "I need mood, energy, and at least one goal before I can save this check-in."
         
-        # Create orders directory if it doesn't exist
-        orders_dir = "orders"
-        os.makedirs(orders_dir, exist_ok=True)
+        # Create summary
+        summary = f"Feeling {self.wellness_state['mood']} with {self.wellness_state['energy']} energy. Goals: {', '.join(self.wellness_state['objectives'])}"
         
-        # Generate filename with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{orders_dir}/order_{timestamp}_{self.order_state['name']}.json"
-        
-        # Generate unique token number
-        token_number = self._generate_token_number()
-        
-        # Prepare order data
-        order_data = {
-            **self.order_state,
-            "token_number": token_number,
-            "timestamp": datetime.now().isoformat(),
-            "status": "confirmed"
+        # Prepare entry
+        entry = {
+            "datetime": datetime.now().isoformat(),
+            "mood": self.wellness_state["mood"],
+            "energy": self.wellness_state["energy"],
+            "objectives": self.wellness_state["objectives"],
+            "summary": summary
         }
         
-        # Save to JSON file
-        with open(filename, 'w') as f:
-            json.dump(order_data, f, indent=2)
+        # Ensure wellness_data directory exists
+        os.makedirs("wellness_data", exist_ok=True)
+        wellness_file = "wellness_data/wellness_log.json"
         
-        # Log the machine-readable format
-        json_str = json.dumps(self.order_state, separators=(',', ':'))
-        logger.info(f"SAVE_ORDER_JSON: {json_str}")
-        logger.info(f"TOKEN_NUMBER: {token_number}")
-        logger.info(f"Order saved to {filename}")
+        # Load existing entries
+        entries = []
+        if os.path.exists(wellness_file):
+            try:
+                with open(wellness_file, 'r') as f:
+                    entries = json.load(f)
+            except Exception as e:
+                logger.error(f"Error loading wellness log: {e}")
         
-        # Generate HTML visualization
-        html_filename = f"{orders_dir}/order_{timestamp}_{self.order_state['name']}.html"
-        html_content = self._generate_html_receipt(order_data, token_number)
-        with open(html_filename, 'w', encoding='utf-8') as f:
-            f.write(html_content)
-        logger.info(f"HTML_SNIPPET:")
-        logger.info(html_content)
-        logger.info(f"END_HTML_SNIPPET")
-        logger.info(f"HTML receipt saved to {html_filename}")
+        # Append new entry
+        entries.append(entry)
         
-        # Reset order state for next customer
-        self.order_state = {
-            "drinkType": "",
-            "size": "",
-            "milk": "",
-            "extras": [],
-            "name": ""
-        }
+        # Save to file
+        with open(wellness_file, 'w') as f:
+            json.dump(entries, f, indent=2)
         
-        # Send HTML as data message to frontend
-        logger.info("Sending HTML as data message to frontend")
-        html_message = f"HTML_SNIPPET:{html_content}END_HTML_SNIPPET"
+        # Log the JSON output
+        json_str = json.dumps(entry, separators=(',', ':'))
+        logger.info(f"WELLNESS_ENTRY_JSON: {json_str}")
+        logger.info(f"Wellness entry saved")
         
-        # Send via data channel using session's room
+        # Send JSON as data message to frontend
         try:
             await self.session.room.local_participant.publish_data(
-                html_message.encode('utf-8'),
+                json_str.encode('utf-8'),
                 reliable=True
             )
-            logger.info("✅ HTML sent via data message")
+            logger.info("✅ Wellness entry sent via data message")
         except Exception as e:
-            logger.error(f"❌ Failed to send HTML via data message: {e}")
+            logger.error(f"❌ Failed to send wellness entry: {e}")
         
-        # ALSO return confirmation with HTML embedded as fallback
-        confirmation = f"Perfect! Your Blue Tokai order is locked in. Your {order_data['size']} {order_data['drinkType']} will be ready shortly. Thank you, {order_data['name']}! Enjoy your brew!"
+        # Reset state for next check-in
+        self.wellness_state = {
+            "mood": "",
+            "energy": "",
+            "objectives": [],
+            "summary": ""
+        }
         
-        # Return both confirmation and HTML for chat message fallback
-        return f"{confirmation} HTML_SNIPPET:{html_content}END_HTML_SNIPPET"
+        # Ask if user wants to create tasks and save to Notion
+        return "Perfect! Your check-in is saved. Would you like me to create tasks in Todoist for your goals? And should I save this to Notion?"
+
+    @function_tool()
+    async def emit_intent(self, context: RunContext, intent: str) -> str:
+        """Emit an intent signal for the backend to detect and process with MCP tools.
+        
+        Args:
+            intent: The intent to emit (e.g., "CREATE_TASKS", "SAVE_TO_NOTION", "CREATE_REMINDER", "WEEKLY_REFLECTION", "MARK_TASK_DONE")
+        """
+        logger.info(f"INTENT:{intent}")
+        
+        # Send intent as data message to frontend/backend
+        try:
+            intent_message = f"INTENT:{intent}"
+            await self.session.room.local_participant.publish_data(
+                intent_message.encode('utf-8'),
+                reliable=True
+            )
+            logger.info(f"✅ Intent emitted: {intent}")
+        except Exception as e:
+            logger.error(f"❌ Failed to emit intent: {e}")
+        
+        # Return appropriate confirmation based on intent
+        responses = {
+            "CREATE_TASKS": "I'll help you turn those goals into tasks.",
+            "SAVE_TO_NOTION": "I'll save this to your Notion workspace.",
+            "CREATE_REMINDER": "I'll set up that reminder for you.",
+            "WEEKLY_REFLECTION": "Let me pull up your weekly summary.",
+            "MARK_TASK_DONE": "Great! I'll mark that as complete."
+        }
+        
+        return responses.get(intent, "Got it, processing that request.")
+
+    @function_tool()
+    async def get_weekly_summary(self, context: RunContext) -> str:
+        """Get a summary of wellness entries from the past week.
+        Call this when user asks about their mood, energy, or goals over the past week."""
+        
+        from datetime import timedelta
+        from collections import Counter
+        
+        wellness_file = "wellness_data/wellness_log.json"
+        
+        # Load all entries
+        entries = []
+        if os.path.exists(wellness_file):
+            try:
+                with open(wellness_file, 'r') as f:
+                    entries = json.load(f)
+            except Exception as e:
+                logger.error(f"Error loading wellness log: {e}")
+                return "I couldn't load your wellness history right now."
+        
+        if not entries:
+            return "You don't have any wellness entries yet. Let's start tracking!"
+        
+        # Filter entries from the past 7 days
+        now = datetime.now()
+        week_ago = now - timedelta(days=7)
+        
+        recent_entries = []
+        for entry in entries:
+            try:
+                entry_date = datetime.fromisoformat(entry["datetime"])
+                if entry_date >= week_ago:
+                    recent_entries.append(entry)
+            except Exception:
+                continue
+        
+        if not recent_entries:
+            return "You don't have any entries from the past week. Let's start fresh today!"
+        
+        # Analyze the week
+        moods = [e.get("mood", "") for e in recent_entries if e.get("mood")]
+        energies = [e.get("energy", "") for e in recent_entries if e.get("energy")]
+        all_objectives = []
+        for e in recent_entries:
+            all_objectives.extend(e.get("objectives", []))
+        
+        # Count frequencies
+        mood_counts = Counter(moods)
+        energy_counts = Counter(energies)
+        most_common_mood = mood_counts.most_common(1)[0] if mood_counts else None
+        most_common_energy = energy_counts.most_common(1)[0] if energy_counts else None
+        
+        # Calculate streak
+        streak = len(recent_entries)
+        
+        # Build conversational summary
+        summary_parts = []
+        
+        # Check-in frequency
+        if streak == 1:
+            summary_parts.append("You've checked in once this week.")
+        elif streak >= 5:
+            summary_parts.append(f"Great job! You've checked in {streak} times this week.")
+        else:
+            summary_parts.append(f"You've checked in {streak} times this week.")
+        
+        # Most common mood
+        if most_common_mood:
+            mood_name, mood_count = most_common_mood
+            if mood_count > 1:
+                summary_parts.append(f"You've been feeling {mood_name} most often.")
+            else:
+                summary_parts.append(f"Your mood has been {mood_name}.")
+        
+        # Most common energy
+        if most_common_energy:
+            energy_name, energy_count = most_common_energy
+            if energy_count > 1:
+                summary_parts.append(f"Your energy has been {energy_name} most of the time.")
+            else:
+                summary_parts.append(f"Your energy level was {energy_name}.")
+        
+        # Goals
+        if all_objectives:
+            summary_parts.append(f"You set {len(all_objectives)} goals total.")
+        
+        # Encouragement
+        if streak >= 3:
+            summary_parts.append("You're building a good habit!")
+        
+        summary = " ".join(summary_parts)
+        
+        logger.info(f"Weekly summary generated: {len(recent_entries)} entries")
+        logger.info(f"WEEKLY_SUMMARY: {summary}")
+        
+        # Emit intent for tracking
+        await self.emit_intent(context, "WEEKLY_REFLECTION")
+        
+        return summary
+
+    @function_tool()
+    async def create_tasks_from_goals(self, context: RunContext) -> str:
+        """Create Todoist tasks from the user's current wellness goals.
+        Call this when user asks to turn goals into tasks, add to todo list, create tasks, etc."""
+        
+        # Step 1: Get current objectives
+        objectives = self.wellness_state.get("objectives", [])
+        
+        # Step 2: If no current objectives, try to load from latest entry
+        if not objectives:
+            objectives = self._get_latest_objectives()
+        
+        # Step 3: Validate we have objectives
+        if not objectives:
+            return "I don't see any goals to create tasks from. Would you like to set some goals first?"
+        
+        # Step 4: Initialize Todoist handler
+        try:
+            api_token = os.getenv("TODOIST_API_TOKEN")
+            project_id = os.getenv("TODOIST_PROJECT_ID")
+            
+            if not api_token:
+                logger.error("TODOIST_API_TOKEN not found in environment")
+                return "I'm having trouble connecting to Todoist right now."
+            
+            logger.info(f"Creating Todoist tasks for {len(objectives)} objectives")
+            handler = TodoistHandler(api_token, project_id)
+            
+            # Step 5: Create tasks
+            result = await handler.create_tasks(objectives)
+            
+            # Step 6: Log success
+            logger.info(f"✅ Created {result['created']} Todoist tasks")
+            
+            # Step 7: Emit intent for tracking
+            await self.emit_intent(context, "CREATE_TASKS")
+            
+            # Step 8: Return confirmation
+            task_count = result['created']
+            if task_count == 0:
+                return "I had trouble creating those tasks. Please check your Todoist connection."
+            elif task_count == 1:
+                return "Perfect! Your task has been saved to Todoist. You're all set!"
+            else:
+                return f"Great! All {task_count} tasks have been saved to your Todoist. You're all set!"
+                
+        except Exception as e:
+            logger.error(f"❌ Error creating Todoist tasks: {e}")
+            return "I had trouble creating those tasks. Please try again later."
+
+    def _get_latest_objectives(self) -> list[str]:
+        """Get objectives from the most recent wellness entry."""
+        wellness_file = "wellness_data/wellness_log.json"
+        
+        if not os.path.exists(wellness_file):
+            return []
+        
+        try:
+            with open(wellness_file, 'r') as f:
+                entries = json.load(f)
+            
+            if entries:
+                latest = entries[-1]
+                return latest.get("objectives", [])
+        except Exception as e:
+            logger.error(f"Error loading latest objectives: {e}")
+        
+        return []
+
+    @function_tool()
+    async def save_to_notion(self, context: RunContext) -> str:
+        """Save the latest wellness check-in to Notion database.
+        Call this when user asks to save to Notion, add to Notion, etc."""
+        
+        # Step 1: Get latest entry
+        entry = self._get_latest_entry()
+        
+        # Step 2: Validate we have data
+        if not entry:
+            return "I don't see a check-in to save. Would you like to do a check-in first?"
+        
+        # Step 3: Initialize Notion handler
+        try:
+            api_key = os.getenv("NOTION_API_KEY")
+            database_id = os.getenv("NOTION_DATABASE_ID")
+            
+            if not api_key or not database_id:
+                logger.error("Notion credentials not found in environment")
+                return "I'm having trouble connecting to Notion right now."
+            
+            logger.info("Saving wellness entry to Notion")
+            handler = NotionHandler(api_key, database_id)
+            
+            # Step 4: Save to Notion
+            result = await handler.save_wellness_entry(entry)
+            
+            # Step 5: Check result
+            if result["success"]:
+                logger.info(f"✅ Saved to Notion: {result['page_id']}")
+                
+                # Step 6: Emit intent
+                await self.emit_intent(context, "SAVE_TO_NOTION")
+                
+                return "Perfect! Your wellness check-in has been saved to Notion. Everything is backed up!"
+            else:
+                logger.error(f"Failed to save to Notion: {result.get('error')}")
+                return "I had trouble saving to Notion. Please try again later."
+                
+        except Exception as e:
+            logger.error(f"❌ Error saving to Notion: {e}")
+            return "I had trouble saving to Notion. Please try again later."
+
+    def _get_latest_entry(self) -> dict:
+        """Get the most recent wellness entry."""
+        wellness_file = "wellness_data/wellness_log.json"
+        
+        if not os.path.exists(wellness_file):
+            return None
+        
+        try:
+            with open(wellness_file, 'r') as f:
+                entries = json.load(f)
+            
+            if entries:
+                return entries[-1]
+        except Exception as e:
+            logger.error(f"Error loading latest entry: {e}")
+        
+        return None
 
 
 def prewarm(proc: JobProcess):
@@ -572,7 +619,7 @@ async def entrypoint(ctx: JobContext):
 
     # Start the session, which initializes the voice pipeline and warms up the models
     await session.start(
-        agent=CoffeeBarista(),
+        agent=WellnessCompanion(),
         room=ctx.room,
         room_input_options=RoomInputOptions(
             # For telephony applications, use `BVCTelephony` for best results
