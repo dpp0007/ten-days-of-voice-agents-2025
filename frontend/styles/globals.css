@@ -107,6 +107,13 @@
   * {
     @apply border-foreground/20 outline-ring/50;
   }
+  
+  html, body {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+  }
+  
   body {
     @apply bg-background text-foreground;
     background-image: 
@@ -168,5 +175,31 @@
     100% {
       background-position: 250% 0;
     }
+  }
+
+  /* Custom scrollbar */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .scrollbar-track-transparent::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thumb-white\/10::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
   }
 }

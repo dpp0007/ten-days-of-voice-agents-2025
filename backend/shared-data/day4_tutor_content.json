@@ -1,0 +1,34 @@
+{
+  "concepts": [
+    {
+      "id": "variables",
+      "title": "Variables",
+      "summary": "Variables are containers that store data values in programming. Think of them as labeled boxes where you can put information and retrieve it later. In Python, you create a variable by simply assigning a value to a name, like x equals 5. Variables can hold different types of data like numbers, text, or boolean values.",
+      "sample_question": "Can you explain what a variable is and give me an example of how you would create one in Python?"
+    },
+    {
+      "id": "loops",
+      "title": "Loops",
+      "summary": "Loops allow you to repeat a block of code multiple times without writing it over and over. There are two main types: for loops, which iterate over a sequence like a list or range, and while loops, which continue as long as a condition is true. Loops are essential for automating repetitive tasks in programming.",
+      "sample_question": "What's the difference between a for loop and a while loop? When would you use each one?"
+    },
+    {
+      "id": "functions",
+      "title": "Functions",
+      "summary": "Functions are reusable blocks of code that perform a specific task. You define a function once with the def keyword, give it a name, and then you can call it multiple times throughout your program. Functions can take inputs called parameters and return outputs. They help organize code and make it more maintainable.",
+      "sample_question": "Why are functions important in programming? Can you describe how to create and call a simple function?"
+    },
+    {
+      "id": "conditionals",
+      "title": "Conditionals",
+      "summary": "Conditionals allow your program to make decisions based on certain conditions. The most common conditional statement is if-else, which executes different code blocks depending on whether a condition is true or false. You can also use elif for multiple conditions. Conditionals are fundamental for creating programs that respond to different situations.",
+      "sample_question": "How do if-else statements work? Can you give me an example of when you'd use a conditional in a real program?"
+    },
+    {
+      "id": "lists",
+      "title": "Lists",
+      "summary": "Lists are ordered collections that can store multiple items in a single variable. In Python, lists are created using square brackets and can contain items of different data types. You can access items by their index position, add new items, remove items, and perform various operations. Lists are mutable, meaning you can change their contents after creation.",
+      "sample_question": "What is a list and how is it different from a single variable? How would you add or remove items from a list?"
+    }
+  ]
+}

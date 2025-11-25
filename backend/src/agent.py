@@ -1,4 +1,8 @@
 import logging
+import json
+import os
+from typing import Optional, List, Dict
+from datetime import datetime
 
 from dotenv import load_dotenv
 from livekit.agents import (
@@ -15,488 +19,385 @@ from livekit.agents import (
     function_tool,
     RunContext
 )
-import json
-import os
-from datetime import datetime
-from typing import Optional
 from livekit.plugins import murf, silero, google, deepgram, noise_cancellation
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
-logger = logging.getLogger("agent")
-
+logger = logging.getLogger("tutor_agent")
 load_dotenv(".env.local")
 
 
-class CoffeeBarista(Agent):
-    def __init__(self) -> None:
+class ActiveRecallCoach(Agent):
+    def __init__(self, session: AgentSession) -> None:
         super().__init__(
-            instructions="""You are a multilingual, witty virtual barista for BLUE TOKAI COFFEE ROASTERS. Your single goal is to take coffee orders via conversation, fill an internal order state, confirm it with the customer, and then save the final order.
+            instructions="""You are "Teach-the-Tutor," an Active Recall Voice Coach using Murf Falcon voices.
 
-PERSONA & TONE:
-- You are friendly, slightly witty, and warm with an Indian English speaking style
-- Use a conversational, upbeat tone with occasional playful comments
-- Speak ONLY in English - no Hindi or Hinglish words
-- Keep jokes light and never be rude or harsh
-- Examples: "What would you like today – a strong espresso or a chill cold brew?" or "Got it, one medium latte coming right up!"
+CRITICAL RULES:
+- ALWAYS accept BOTH text and voice input from users
+- Do NOT hallucinate concepts or create new topics
+- Do NOT generate your own questions - ONLY use sample_question from JSON
+- Do NOT mention dashboards, progress boards, min/max/avg analytics
+- Stay concise and conversational for voice interaction
 
-BRAND CONTEXT:
-- You work at BLUE TOKAI COFFEE ROASTERS
-- Reference "our roasts", "Blue Tokai brews", "signature cold brews"
-- Menu: Espresso, Americano, Cappuccino, Latte, Flat White, Mocha, Cold Brew, Iced Latte, Frappé, Hot Chocolate
-- Accept custom drinks too
+AVAILABLE CONCEPTS (from JSON):
+- variables, loops, functions, conditionals, lists
 
-LANGUAGE BEHAVIOR:
-- Speak ONLY in English with an Indian conversational style
-- Use natural Indian English expressions and phrasing
-- Be warm and friendly but stick to English only
-- Examples: "What would you like today?", "That's great!", "One medium latte", "What's your name?"
-- Keep it conversational and fun but entirely in English
+THREE MODES WITH STRICT VOICE ASSIGNMENT:
+1. LEARN MODE → Voice: Matthew → Explain using summary
+2. QUIZ MODE → Voice: Alicia → Ask sample_question, score answer 0-100
+3. TEACH_BACK MODE → Voice: Ken → User explains, score 0-100
 
-ORDER STATE MANAGEMENT:
-You maintain an internal order with these fields:
-- drinkType: type of coffee drink
-- size: "small", "medium", or "large"
-- milk: "regular", "skim", "oat", "soy", "almond"
-- extras: array of extras like "extra shot", "vanilla syrup", "caramel drizzle", "whipped cream"
-- name: customer's name
+STARTUP BEHAVIOR:
+1. Load learner_history.json from shared-data/
+2. If previous session exists (last_concept and last_mode):
+   - Greet: "Welcome back! Last time you were learning <concept> in <mode> mode. Would you like to continue or choose another mode?"
+3. If no previous session:
+   - Greet: "Hello! I'm Teach-the-Tutor. Which mode would you like to start with — learn, quiz, or teach-back?"
+4. After mode selection, ask: "Great! Which concept would you like to work on?"
+5. NEVER teach automatically. NEVER assume a concept until selected.
 
-CONVERSATION FLOW:
-1. Ask for name first: "What's your name?"
-2. Ask drink type: "What are you in the mood for today? Latte, cappuccino, cold brew?"
-3. Ask size: If not specified, default to "medium" but confirm: "What size would you like - small, medium, or large?"
-4. Ask milk: If not specified, default to "regular milk" but confirm: "What kind of milk would you prefer? Regular, oat, almond, soy?"
-5. Ask extras: "Would you like any extras? Extra shot, vanilla syrup, whipped cream?"
-6. Recap the complete order clearly in English
-7. Ask for confirmation: "Does that sound good? Should I confirm this order?"
-8. CRITICAL: After user says YES/confirms, you MUST immediately call the save_order function tool. DO NOT just say "confirmed" - you must actually call save_order()
-9. Only after calling save_order successfully, tell the customer their order is confirmed
+PERSISTENT STORAGE:
+- After every quiz or teach-back, save to learner_history.json:
+  • concept_id, mode, current_score, previous_score, average_score, timestamp
+- Update last_concept and last_mode for next session
+- Store average_score for frontend use (DO NOT speak about it)
+- Only speak current_score and previous_score in conversation
 
-CLARIFYING QUESTIONS:
-- Ask one or two things at a time to keep it natural
-- If user provides multiple details at once, extract them and only ask about missing fields
-- If user changes their mind, update only that field
+MODE BEHAVIORS:
 
-ERROR HANDLING:
-- If input is unclear, politely ask again
-- If user is off-topic too long, gently bring them back: "I'm loving this chat, but let's get your coffee order sorted out!"
+LEARN MODE (Matthew):
+- Explain concept using its summary
+- Keep explanation short and structured
+- End by asking: "Would you like to switch to quiz or teach-back next?"
 
-IMPORTANT:
-- Keep responses natural and conversational for voice interaction
-- Don't use complex formatting, emojis, or markdown in your speech
-- Use the function tools to manage order state
-- Only call save_order after explicit user confirmation""",
+QUIZ MODE (Alicia):
+- Ask the concept's sample_question
+- Accept BOTH voice and text answers
+- Score from 0-100
+- Speak ONLY: current score, previous score (if exists), one motivational line
+- DO NOT mention min, max, avg, dashboard, or analytics
+- After scoring, ask if user wants another quiz or wants to switch mode
+
+TEACH_BACK MODE (Ken):
+- Ask user to explain the concept
+- Compare explanation to summary
+- Score 0-100
+- Give 1-2 line feedback
+- Mention: current score, previous score, motivation
+- Ask user what they want next
+
+SCORING STORAGE (SIMPLE):
+For each concept store ONLY:
+- last_score (previous attempt)
+- current_score (this attempt)
+NO average. NO min. NO max. NO dashboards. NO progress board announcements.
+
+MODE SWITCHING:
+Users can switch anytime: "Switch to quiz", "Let's do teach-back", "Now teach loops"
+When switching:
+1. Change session_state
+2. Call switch_voice function tool to change TTS voice
+3. Announce: "Switching to <mode>. <voice-name> will continue."
+
+MENTOR PERSONALITY:
+- Supportive, motivating, conversational
+- Examples: "Great progress!", "You're improving!", "Let's challenge you!"
+- MOTIVATE based on last vs current score
+- Keep replies short
+
+Always use function tools to manage state, scoring, and voice switching.""",
         )
         
-        # Initialize order state
-        self.order_state = {
-            "drinkType": "",
-            "size": "",
-            "milk": "",
-            "extras": [],
-            "name": ""
+        # Store session reference for voice switching
+        self.agent_session = session
+        
+        # Load concepts from JSON
+        self.concepts = self._load_concepts()
+        
+        # Load learner history from persistent storage
+        self.history_path = "shared-data/learner_history.json"
+        self.learner_history = self._load_learner_history()
+        
+        # Initialize session state with simplified scoring
+        self.session_state = {
+            "current_mode": None,  # learn, quiz, teach_back
+            "current_concept": None,  # Will be set by user choice
+            "mastery": {}  # {concept_id: {last_score: number, current_score: number}}
         }
-
-    async def on_enter(self) -> None:
-        """Called when the agent starts - greet the customer"""
-        await self.session.say("Hello! Welcome to Blue Tokai Coffee Roasters. I'm your virtual barista today. What's your name, and what kind of coffee are you in the mood for?")
     
-    def _generate_token_number(self) -> str:
-        """Generate a unique token number for the order."""
-        import random
-        import string
-        # Format: BT-YYYYMMDD-XXXX (BT = Blue Tokai, XXXX = random alphanumeric)
-        date_part = datetime.now().strftime("%Y%m%d")
-        random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
-        return f"BT-{date_part}-{random_part}"
-    
-    def _generate_html_receipt(self, order_data: dict, token_number: str) -> str:
-        """Generate an HTML receipt visualization for the order."""
-        
-        # Determine cup size for visualization
-        cup_heights = {"small": "100px", "medium": "140px", "large": "180px"}
-        cup_height = cup_heights.get(order_data["size"], "140px")
-        
-        # Check if it's a cold drink
-        is_cold = any(word in order_data["drinkType"].lower() for word in ["iced", "cold", "frappe"])
-        cup_color = "#87CEEB" if is_cold else "#8B4513"
-        
-        # Check for whipped cream
-        has_whipped_cream = any("whipped" in extra.lower() for extra in order_data.get("extras", []))
-        
-        # Build extras list
-        extras_html = ""
-        if order_data.get("extras"):
-            extras_items = "".join([f"<li>{extra}</li>" for extra in order_data["extras"]])
-            extras_html = f"<div style='margin-top: 10px;'><strong>Extras:</strong><ul style='margin: 5px 0; padding-left: 20px;'>{extras_items}</ul></div>"
-        
-        # Whipped cream topping
-        whipped_cream_html = ""
-        if has_whipped_cream:
-            whipped_cream_html = """
-            <div style='position: absolute; top: -20px; left: 50%; transform: translateX(-50%); 
-                        width: 80px; height: 30px; background: #FFFACD; 
-                        border-radius: 50% 50% 0 0; border: 2px solid #F5DEB3;'></div>
-            """
-        
-        html = f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blue Tokai Order - {order_data['name']}</title>
-    <style>
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }}
-        .receipt {{
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
-            width: 100%;
-        }}
-        .header {{
-            text-align: center;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }}
-        .header h1 {{
-            color: #667eea;
-            margin: 0;
-            font-size: 28px;
-        }}
-        .header p {{
-            color: #666;
-            margin: 5px 0 0 0;
-            font-size: 14px;
-        }}
-        .token-number {{
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin: 15px 0;
-            display: inline-block;
-        }}
-        .cup-container {{
-            display: flex;
-            justify-content: center;
-            margin: 30px 0;
-            position: relative;
-        }}
-        .cup {{
-            position: relative;
-            width: 100px;
-            height: {cup_height};
-            background: {cup_color};
-            border-radius: 0 0 20px 20px;
-            border: 3px solid #333;
-            box-shadow: inset 0 -20px 30px rgba(0,0,0,0.2);
-        }}
-        .order-details {{
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }}
-        .order-row {{
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #dee2e6;
-        }}
-        .order-row:last-child {{
-            border-bottom: none;
-        }}
-        .label {{
-            font-weight: 600;
-            color: #495057;
-        }}
-        .value {{
-            color: #212529;
-            text-transform: capitalize;
-        }}
-        .footer {{
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #dee2e6;
-        }}
-        .footer h2 {{
-            color: #667eea;
-            margin: 0 0 10px 0;
-            font-size: 24px;
-        }}
-        .footer p {{
-            color: #666;
-            margin: 5px 0;
-            font-size: 14px;
-        }}
-        .timestamp {{
-            text-align: center;
-            color: #999;
-            font-size: 12px;
-            margin-top: 20px;
-        }}
-    </style>
-</head>
-<body>
-    <div class="receipt">
-        <div class="header">
-            <h1>☕ BLUE TOKAI</h1>
-            <p>Coffee Roasters</p>
-            <div class="token-number">Token: {token_number}</div>
-        </div>
-        
-        <div class="cup-container">
-            <div class="cup">
-                {whipped_cream_html}
-            </div>
-        </div>
-        
-        <div class="order-details">
-            <div class="order-row">
-                <span class="label">Customer:</span>
-                <span class="value">{order_data['name']}</span>
-            </div>
-            <div class="order-row">
-                <span class="label">Drink:</span>
-                <span class="value">{order_data['drinkType']}</span>
-            </div>
-            <div class="order-row">
-                <span class="label">Size:</span>
-                <span class="value">{order_data['size']}</span>
-            </div>
-            <div class="order-row">
-                <span class="label">Milk:</span>
-                <span class="value">{order_data['milk']}</span>
-            </div>
-            {extras_html}
-        </div>
-        
-        <div class="footer">
-            <h2>Order Confirmed!</h2>
-            <p>Your coffee will be ready shortly</p>
-            <p style="color: #667eea; font-weight: 600;">Enjoy your brew! ☕</p>
-        </div>
-        
-        <div class="timestamp">
-            Order placed: {order_data['timestamp']}
-        </div>
-    </div>
-</body>
-</html>
-"""
-        return html
-
-    @function_tool()
-    async def set_name(self, context: RunContext, name: str) -> str:
-        """Set the customer's name for the order.
-        
-        Args:
-            name: Customer's name
-        """
-        self.order_state["name"] = name
-        logger.info(f"Set name: {name}")
-        
-        if not self.order_state["drinkType"]:
-            return f"Nice to meet you, {name}! What are you in the mood for? Latte, cappuccino, cold brew, mocha, something else?"
-        return f"Got it, {name}!"
-
-    @function_tool()
-    async def set_drink_type(self, context: RunContext, drink_type: str) -> str:
-        """Set the drink type in the order.
-        
-        Args:
-            drink_type: The type of coffee drink (e.g., latte, cappuccino, espresso, americano, mocha, cold brew, iced latte)
-        """
-        self.order_state["drinkType"] = drink_type
-        logger.info(f"Set drink type: {drink_type}")
-        
-        if not self.order_state["size"]:
-            return f"Great choice! What size would you like - small, medium, or large?"
-        return f"Changed to {drink_type}!"
-
-    @function_tool()
-    async def set_size(self, context: RunContext, size: str) -> str:
-        """Set the size of the drink.
-        
-        Args:
-            size: The size of the drink - must be "small", "medium", or "large"
-        """
-        size = size.lower()
-        if size not in ["small", "medium", "large"]:
-            size = "medium"
-        
-        self.order_state["size"] = size
-        logger.info(f"Set size: {size}")
-        
-        if not self.order_state["milk"]:
-            return f"Perfect, a {size} {self.order_state['drinkType']}. What kind of milk - regular, oat, almond, soy, or skim?"
-        return f"Changed to {size}!"
-
-    @function_tool()
-    async def set_milk(self, context: RunContext, milk: str) -> str:
-        """Set the milk preference.
-        
-        Args:
-            milk: Type of milk - "regular", "skim", "oat", "almond", "soy", or "none"
-        """
-        self.order_state["milk"] = milk.lower()
-        logger.info(f"Set milk: {milk}")
-        
-        if not self.order_state["extras"] and self.order_state["name"]:
-            return f"Great! {milk} milk it is. Koi extras chahiye? Extra shot, vanilla syrup, caramel, whipped cream? Ya simple hi?"
-        return f"Changed to {milk} milk!"
-
-    @function_tool()
-    async def add_extras(self, context: RunContext, extras: str) -> str:
-        """Add extras to the order.
-        
-        Args:
-            extras: Comma-separated list of extras (e.g., "extra shot, vanilla syrup, whipped cream")
-        """
-        extras_list = [e.strip() for e in extras.split(",")]
-        self.order_state["extras"] = extras_list
-        logger.info(f"Set extras: {extras_list}")
-        return f"Added {', '.join(extras_list)}!"
-
-    @function_tool()
-    async def no_extras(self, context: RunContext) -> str:
-        """Call this when customer doesn't want any extras."""
-        self.order_state["extras"] = []
-        logger.info("No extras requested")
-        return "No problem, keeping it simple!"
-    
-    @function_tool()
-    async def confirm_order(self, context: RunContext) -> str:
-        """Confirm the complete order with the customer before saving. Call this to recap all order details."""
-        
-        # Check if all required fields are filled
-        missing = []
-        if not self.order_state["name"]:
-            missing.append("name")
-        if not self.order_state["drinkType"]:
-            missing.append("drink type")
-        if not self.order_state["size"]:
-            missing.append("size")
-        if not self.order_state["milk"]:
-            missing.append("milk preference")
-        
-        if missing:
-            return f"I still need: {', '.join(missing)}. Let me know those details."
-        
-        # Build confirmation message
-        extras_text = ""
-        if self.order_state["extras"]:
-            extras_text = f" with {', '.join(self.order_state['extras'])}"
-        
-        confirmation = (
-            f"Alright, here's your order: "
-            f"A {self.order_state['size']} {self.order_state['drinkType']} "
-            f"with {self.order_state['milk']} milk{extras_text} "
-            f"for {self.order_state['name']}. "
-            f"Sab theek hai? Should I lock this in?"
-        )
-        
-        logger.info(f"Order confirmation: {self.order_state}")
-        return confirmation
-
-    @function_tool()
-    async def save_order(self, context: RunContext) -> str:
-        """CRITICAL: Save the complete order to a JSON file and send HTML receipt to frontend. 
-        You MUST call this function immediately after the customer confirms their order (says yes/okay/confirm).
-        DO NOT just say the order is confirmed - you must actually call this function to save it."""
-        
-        # Validate all fields are filled
-        if not all([
-            self.order_state["name"],
-            self.order_state["drinkType"],
-            self.order_state["size"],
-            self.order_state["milk"]
-        ]):
-            return "I can't save the order yet - some details are missing. Let me confirm everything first."
-        
-        # Create orders directory if it doesn't exist
-        orders_dir = "orders"
-        os.makedirs(orders_dir, exist_ok=True)
-        
-        # Generate filename with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{orders_dir}/order_{timestamp}_{self.order_state['name']}.json"
-        
-        # Generate unique token number
-        token_number = self._generate_token_number()
-        
-        # Prepare order data
-        order_data = {
-            **self.order_state,
-            "token_number": token_number,
-            "timestamp": datetime.now().isoformat(),
-            "status": "confirmed"
-        }
-        
-        # Save to JSON file
-        with open(filename, 'w') as f:
-            json.dump(order_data, f, indent=2)
-        
-        # Log the machine-readable format
-        json_str = json.dumps(self.order_state, separators=(',', ':'))
-        logger.info(f"SAVE_ORDER_JSON: {json_str}")
-        logger.info(f"TOKEN_NUMBER: {token_number}")
-        logger.info(f"Order saved to {filename}")
-        
-        # Generate HTML visualization
-        html_filename = f"{orders_dir}/order_{timestamp}_{self.order_state['name']}.html"
-        html_content = self._generate_html_receipt(order_data, token_number)
-        with open(html_filename, 'w', encoding='utf-8') as f:
-            f.write(html_content)
-        logger.info(f"HTML_SNIPPET:")
-        logger.info(html_content)
-        logger.info(f"END_HTML_SNIPPET")
-        logger.info(f"HTML receipt saved to {html_filename}")
-        
-        # Reset order state for next customer
-        self.order_state = {
-            "drinkType": "",
-            "size": "",
-            "milk": "",
-            "extras": [],
-            "name": ""
-        }
-        
-        # Send HTML as data message to frontend
-        logger.info("Sending HTML as data message to frontend")
-        html_message = f"HTML_SNIPPET:{html_content}END_HTML_SNIPPET"
-        
-        # Send via data channel using session's room
+    def _load_concepts(self) -> dict:
+        """Load concepts from the JSON file."""
+        json_path = "shared-data/day4_tutor_content.json"
         try:
-            await self.session.room.local_participant.publish_data(
-                html_message.encode('utf-8'),
-                reliable=True
-            )
-            logger.info("✅ HTML sent via data message")
+            with open(json_path, 'r') as f:
+                data = json.load(f)
+                concepts_dict = {c["id"]: c for c in data["concepts"]}
+                logger.info(f"Loaded {len(concepts_dict)} concepts from {json_path}")
+                return concepts_dict
         except Exception as e:
-            logger.error(f"❌ Failed to send HTML via data message: {e}")
+            logger.error(f"Failed to load concepts: {e}")
+            return {}
+    
+    def _get_concept(self, concept_id: str) -> Optional[dict]:
+        """Get a concept by ID."""
+        return self.concepts.get(concept_id)
+    
+    def _load_learner_history(self) -> dict:
+        """Load learner history from JSON file."""
+        try:
+            if os.path.exists(self.history_path):
+                with open(self.history_path, 'r') as f:
+                    history = json.load(f)
+                    logger.info(f"Loaded learner history from {self.history_path}")
+                    return history
+            else:
+                logger.info("No existing learner history found, initializing new")
+                return {
+                    "last_concept": None,
+                    "last_mode": None,
+                    "concepts": {}  # {concept_id: {attempts: [], average_score: number}}
+                }
+        except Exception as e:
+            logger.error(f"Failed to load learner history: {e}")
+            return {
+                "last_concept": None,
+                "last_mode": None,
+                "concepts": {}
+            }
+    
+    def _save_learner_history(self):
+        """Save learner history to JSON file."""
+        try:
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(self.history_path), exist_ok=True)
+            
+            with open(self.history_path, 'w') as f:
+                json.dump(self.learner_history, f, indent=2)
+            logger.info(f"Saved learner history to {self.history_path}")
+        except Exception as e:
+            logger.error(f"Failed to save learner history: {e}")
+    
+    def _record_attempt(self, concept_id: str, mode: str, score: int, previous_score: Optional[int]):
+        """Record an attempt in learner history."""
+        # Initialize concept if not exists
+        if concept_id not in self.learner_history["concepts"]:
+            self.learner_history["concepts"][concept_id] = {
+                "attempts": [],
+                "average_score": 0
+            }
         
-        # ALSO return confirmation with HTML embedded as fallback
-        confirmation = f"Perfect! Your Blue Tokai order is locked in. Your {order_data['size']} {order_data['drinkType']} will be ready shortly. Thank you, {order_data['name']}! Enjoy your brew!"
+        concept_data = self.learner_history["concepts"][concept_id]
         
-        # Return both confirmation and HTML for chat message fallback
-        return f"{confirmation} HTML_SNIPPET:{html_content}END_HTML_SNIPPET"
+        # Add new attempt
+        attempt = {
+            "mode": mode,
+            "current_score": score,
+            "previous_score": previous_score,
+            "timestamp": datetime.now().isoformat()
+        }
+        concept_data["attempts"].append(attempt)
+        
+        # Calculate average score
+        all_scores = [a["current_score"] for a in concept_data["attempts"]]
+        concept_data["average_score"] = sum(all_scores) / len(all_scores)
+        
+        # Update last concept and mode
+        self.learner_history["last_concept"] = concept_id
+        self.learner_history["last_mode"] = mode
+        
+        # Save to file
+        self._save_learner_history()
+        
+        logger.info(f"Recorded attempt: {concept_id} ({mode}) - score: {score}, avg: {concept_data['average_score']:.1f}")
+    
+    def _init_mastery(self, concept_id: str):
+        """Initialize mastery tracking for a concept."""
+        if concept_id not in self.session_state["mastery"]:
+            self.session_state["mastery"][concept_id] = {
+                "last_score": None,
+                "current_score": None
+            }
+    
+    def _update_mastery(self, concept_id: str, score: int):
+        """Update mastery tracking with new score."""
+        self._init_mastery(concept_id)
+        mastery = self.session_state["mastery"][concept_id]
+        
+        # Move current to last, set new current
+        mastery["last_score"] = mastery["current_score"]
+        mastery["current_score"] = score
+        
+        logger.info(f"Updated mastery for {concept_id}: current={score}, last={mastery['last_score']}")
+    
+    def _get_mastery_stats(self, concept_id: str) -> Dict:
+        """Get mastery statistics for a concept."""
+        self._init_mastery(concept_id)
+        return self.session_state["mastery"][concept_id]
+    
+    async def _switch_voice(self, voice: str):
+        """Switch the TTS voice dynamically."""
+        try:
+            # Create new TTS with the specified voice
+            new_tts = murf.TTS(
+                voice=voice.lower(),
+                style="Conversation",
+                tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+                text_pacing=True
+            )
+            # Update the session's TTS
+            self.agent_session._tts = new_tts
+            logger.info(f"✅ Switched TTS voice to: {voice}")
+        except Exception as e:
+            logger.error(f"❌ Failed to switch voice to {voice}: {e}")
+    
+    async def on_enter(self) -> None:
+        """Called when the agent starts - check for previous session and greet."""
+        # Check if there's a previous session
+        last_concept = self.learner_history.get("last_concept")
+        last_mode = self.learner_history.get("last_mode")
+        
+        if last_concept and last_mode:
+            concept = self._get_concept(last_concept)
+            if concept:
+                greeting = (
+                    f"Welcome back! Last time you were learning {concept['title']} in {last_mode} mode. "
+                    f"Would you like to continue or choose another mode?"
+                )
+            else:
+                greeting = (
+                    f"Hello! I'm Teach-the-Tutor, your Active Recall Coach. "
+                    f"Which mode would you like to start with — learn, quiz, or teach-back?"
+                )
+        else:
+            greeting = (
+                f"Hello! I'm Teach-the-Tutor, your Active Recall Coach. "
+                f"Which mode would you like to start with — learn, quiz, or teach-back?"
+            )
+        
+        await self.session.say(greeting)
+
+    @function_tool()
+    async def switch_mode(self, context: RunContext, mode: str) -> str:
+        """Switch to a different learning mode and change TTS voice.
+        
+        Args:
+            mode: The mode to switch to - must be "learn", "quiz", or "teach_back"
+        """
+        mode = mode.lower().replace("-", "_").replace(" ", "_")
+        
+        if mode not in ["learn", "quiz", "teach_back"]:
+            return f"I don't recognize that mode. Please choose: learn, quiz, or teach_back."
+        
+        self.session_state["current_mode"] = mode
+        
+        # Voice mapping
+        voice_map = {"learn": "matthew", "quiz": "alicia", "teach_back": "ken"}
+        voice_name_display = {"learn": "Matthew", "quiz": "Alicia", "teach_back": "Ken"}
+        
+        # Switch TTS voice
+        await self._switch_voice(voice_map[mode])
+        
+        # If no concept selected yet, ask for it
+        if not self.session_state["current_concept"]:
+            concept_list = ", ".join(self.concepts.keys())
+            return f"Great! Which concept would you like to work on? Available concepts: {concept_list}"
+        
+        concept = self._get_concept(self.session_state["current_concept"])
+        
+        logger.info(f"Switched to {mode} mode with voice {voice_name_display[mode]}")
+        
+        # Execute mode behavior
+        if mode == "learn":
+            return f"Switching to learn mode. {voice_name_display[mode]} will continue. Let me explain {concept['title']}. {concept['summary']} Would you like to switch to quiz or teach-back next?"
+        
+        elif mode == "quiz":
+            return f"Switching to quiz mode. {voice_name_display[mode]} will continue. Here's your question about {concept['title']}: {concept['sample_question']}"
+        
+        elif mode == "teach_back":
+            return f"Switching to teach-back mode. {voice_name_display[mode]} will continue. Now it's your turn! Please explain {concept['title']} back to me in your own words."
+    
+    @function_tool()
+    async def switch_concept(self, context: RunContext, concept_id: str) -> str:
+        """Switch to a different concept.
+        
+        Args:
+            concept_id: The concept ID to switch to (e.g., "variables", "loops", "functions")
+        """
+        concept_id = concept_id.lower()
+        
+        concept = self._get_concept(concept_id)
+        if not concept:
+            available = ", ".join(self.concepts.keys())
+            return f"I don't have that concept. Available concepts are: {available}"
+        
+        self.session_state["current_concept"] = concept_id
+        logger.info(f"Switched to concept: {concept_id}")
+        
+        # If no mode set, ask which mode
+        if not self.session_state["current_mode"]:
+            return f"Great! Let's work on {concept['title']}. Which mode would you like — learn, quiz, or teach-back?"
+        
+        # Otherwise, apply current mode to new concept
+        mode = self.session_state["current_mode"]
+        
+        if mode == "learn":
+            return f"Now let's learn about {concept['title']}. {concept['summary']} Would you like to switch to quiz or teach-back next?"
+        elif mode == "quiz":
+            return f"Quiz time for {concept['title']}: {concept['sample_question']}"
+        elif mode == "teach_back":
+            return f"Teach me about {concept['title']}. Please explain it in your own words."
+    
+    @function_tool()
+    async def score_answer(self, context: RunContext, user_answer: str, score: int, feedback: str) -> str:
+        """Score a quiz or teach-back answer with persistent tracking.
+        
+        Args:
+            user_answer: The user's answer (for logging)
+            score: Score from 0-100
+            feedback: 1-2 sentence qualitative feedback
+        """
+        mode = self.session_state["current_mode"]
+        concept_id = self.session_state["current_concept"]
+        
+        if not concept_id or mode not in ["quiz", "teach_back"]:
+            return "Something went wrong. Please select a concept and mode first."
+        
+        # Clamp score to 0-100
+        score = max(0, min(100, score))
+        
+        # Update mastery tracking (simple: last_score, current_score)
+        self._update_mastery(concept_id, score)
+        stats = self._get_mastery_stats(concept_id)
+        
+        # Record attempt in persistent storage
+        self._record_attempt(concept_id, mode, score, stats["last_score"])
+        
+        # Build response with ONLY current and previous score
+        response = f"{feedback} Your score is {score}. "
+        
+        if stats["last_score"] is not None:
+            response += f"Your previous score was {stats['last_score']}. "
+            
+            # Add motivation based on improvement
+            if score > stats["last_score"]:
+                response += "Great improvement! "
+            elif score == stats["last_score"]:
+                response += "Consistent performance! "
+            else:
+                response += "Keep practicing! "
+        
+        response += "What would you like to do next? Another quiz, teach-back, or switch concept?"
+        
+        logger.info(f"Scored {mode} for {concept_id}: {score}/100 (previous: {stats['last_score']})")
+        return response
+    
+
+    
+    @function_tool()
+    async def get_current_state(self, context: RunContext) -> str:
+        """Get the current mode and concept."""
+        mode = self.session_state["current_mode"] or "none"
+        concept = self.session_state["current_concept"] or "none"
+        return f"Current mode: {mode}, Current concept: {concept}"
 
 
 def prewarm(proc: JobProcess):
@@ -504,51 +405,24 @@ def prewarm(proc: JobProcess):
 
 
 async def entrypoint(ctx: JobContext):
-    # Logging setup
-    # Add any other context you want in all log entries here
     ctx.log_context_fields = {
         "room": ctx.room.name,
     }
 
-    # Set up a voice AI pipeline using OpenAI, Cartesia, AssemblyAI, and the LiveKit turn detector
     session = AgentSession(
-        # Speech-to-text (STT) is your agent's ears, turning the user's speech into text that the LLM can understand
-        # See all available models at https://docs.livekit.io/agents/models/stt/
         stt=deepgram.STT(model="nova-3"),
-        # A Large Language Model (LLM) is your agent's brain, processing user input and generating a response
-        # See all available models at https://docs.livekit.io/agents/models/llm/
-        llm=google.LLM(
-                model="gemini-2.5-flash",
-            ),
-        # Text-to-speech (TTS) is your agent's voice, turning the LLM's text into speech that the user can hear
-        # See all available models as well as voice selections at https://docs.livekit.io/agents/models/tts/
+        llm=google.LLM(model="gemini-2.5-flash"),
         tts=murf.TTS(
-                voice="anisha", 
-                style="Conversation",
-                tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-                text_pacing=True
-            ),
-        # VAD and turn detection are used to determine when the user is speaking and when the agent should respond
-        # See more at https://docs.livekit.io/agents/build/turns
+            voice="matthew",  # Default voice
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        ),
         turn_detection=MultilingualModel(),
         vad=ctx.proc.userdata["vad"],
-        # allow the LLM to generate a response while waiting for the end of turn
-        # See more at https://docs.livekit.io/agents/build/audio/#preemptive-generation
         preemptive_generation=True,
     )
 
-    # To use a realtime model instead of a voice pipeline, use the following session setup instead.
-    # (Note: This is for the OpenAI Realtime API. For other providers, see https://docs.livekit.io/agents/models/realtime/))
-    # 1. Install livekit-agents[openai]
-    # 2. Set OPENAI_API_KEY in .env.local
-    # 3. Add `from livekit.plugins import openai` to the top of this file
-    # 4. Use the following session setup instead of the version above
-    # session = AgentSession(
-    #     llm=openai.realtime.RealtimeModel(voice="marin")
-    # )
-
-    # Metrics collection, to measure pipeline performance
-    # For more information, see https://docs.livekit.io/agents/build/metrics/
     usage_collector = metrics.UsageCollector()
 
     @session.on("metrics_collected")
@@ -562,25 +436,15 @@ async def entrypoint(ctx: JobContext):
 
     ctx.add_shutdown_callback(log_usage)
 
-    # # Add a virtual avatar to the session, if desired
-    # # For other providers, see https://docs.livekit.io/agents/models/avatar/
-    # avatar = hedra.AvatarSession(
-    #   avatar_id="...",  # See https://docs.livekit.io/agents/models/avatar/plugins/hedra
-    # )
-    # # Start the avatar and wait for it to join
-    # await avatar.start(session, room=ctx.room)
-
-    # Start the session, which initializes the voice pipeline and warms up the models
+    # Pass session to agent for voice switching
     await session.start(
-        agent=CoffeeBarista(),
+        agent=ActiveRecallCoach(session),
         room=ctx.room,
         room_input_options=RoomInputOptions(
-            # For telephony applications, use `BVCTelephony` for best results
             noise_cancellation=noise_cancellation.BVC(),
         ),
     )
 
-    # Join the room and connect to the user
     await ctx.connect()
 
 

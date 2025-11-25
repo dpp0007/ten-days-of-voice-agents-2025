@@ -1,0 +1,46 @@
+{
+  "last_concept": "variables",
+  "last_mode": "teach_back",
+  "concepts": {
+    "loops": {
+      "attempts": [
+        {
+          "mode": "quiz",
+          "current_score": 85,
+          "previous_score": null,
+          "timestamp": "2025-11-25T19:53:55.442244"
+        },
+        {
+          "mode": "quiz",
+          "current_score": 95,
+          "previous_score": 85,
+          "timestamp": "2025-11-25T19:54:25.680198"
+        },
+        {
+          "mode": "teach_back",
+          "current_score": 90,
+          "previous_score": 95,
+          "timestamp": "2025-11-25T19:55:53.219579"
+        }
+      ],
+      "average_score": 90.0
+    },
+    "variables": {
+      "attempts": [
+        {
+          "mode": "quiz",
+          "current_score": 75,
+          "previous_score": null,
+          "timestamp": "2025-11-25T20:07:30.804562"
+        },
+        {
+          "mode": "teach_back",
+          "current_score": 90,
+          "previous_score": 75,
+          "timestamp": "2025-11-25T20:09:12.870214"
+        }
+      ],
+      "average_score": 82.5
+    }
+  }
+}
