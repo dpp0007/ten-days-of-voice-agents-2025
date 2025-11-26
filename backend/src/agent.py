@@ -26,117 +26,139 @@ logger = logging.getLogger("agent")
 
 load_dotenv(".env.local")
 
+# Load FAQ data
+FAQ_DATA = {}
+try:
+    with open("faq.json", "r", encoding="utf-8") as f:
+        FAQ_DATA = json.load(f)
+    logger.info("✅ FAQ data loaded successfully")
+except Exception as e:
+    logger.error(f"❌ Failed to load FAQ data: {e}")
 
-class CoffeeBarista(Agent):
+# Load meeting slots
+MEETING_SLOTS = {}
+try:
+    with open("slots.json", "r", encoding="utf-8") as f:
+        MEETING_SLOTS = json.load(f)
+    logger.info("✅ Meeting slots loaded successfully")
+except Exception as e:
+    logger.error(f"❌ Failed to load meeting slots: {e}")
+
+
+class B2BLeadSDR(Agent):
     def __init__(self) -> None:
         super().__init__(
-            instructions="""You are a multilingual, witty virtual barista for BLUE TOKAI COFFEE ROASTERS. Your single goal is to take coffee orders via conversation, fill an internal order state, confirm it with the customer, and then save the final order.
+            instructions="""You are Alex, a professional and friendly Sales Development Representative (SDR) for B2B Lead Generator, an AI-powered B2B lead generation platform.
 
 PERSONA & TONE:
-- You are friendly, slightly witty, and warm with an Indian English speaking style
-- Use a conversational, upbeat tone with occasional playful comments
-- Speak ONLY in English - no Hindi or Hinglish words
-- Keep jokes light and never be rude or harsh
-- Examples: "What would you like today – a strong espresso or a chill cold brew?" or "Got it, one medium latte coming right up!"
+- Professional yet warm and conversational
+- Speak in clear, natural English
+- Be consultative, not pushy
+- Focus on understanding the prospect's needs
+- Keep responses concise for voice interaction
 
-BRAND CONTEXT:
-- You work at BLUE TOKAI COFFEE ROASTERS
-- Reference "our roasts", "Blue Tokai brews", "signature cold brews"
-- Menu: Espresso, Americano, Cappuccino, Latte, Flat White, Mocha, Cold Brew, Iced Latte, Frappé, Hot Chocolate
-- Accept custom drinks too
-
-LANGUAGE BEHAVIOR:
-- Speak ONLY in English with an Indian conversational style
-- Use natural Indian English expressions and phrasing
-- Be warm and friendly but stick to English only
-- Examples: "What would you like today?", "That's great!", "One medium latte", "What's your name?"
-- Keep it conversational and fun but entirely in English
-
-ORDER STATE MANAGEMENT:
-You maintain an internal order with these fields:
-- drinkType: type of coffee drink
-- size: "small", "medium", or "large"
-- milk: "regular", "skim", "oat", "soy", "almond"
-- extras: array of extras like "extra shot", "vanilla syrup", "caramel drizzle", "whipped cream"
-- name: customer's name
+YOUR GOAL:
+Qualify leads by understanding their business needs and collecting key information naturally through conversation.
 
 CONVERSATION FLOW:
-1. Ask for name first: "What's your name?"
-2. Ask drink type: "What are you in the mood for today? Latte, cappuccino, cold brew?"
-3. Ask size: If not specified, default to "medium" but confirm: "What size would you like - small, medium, or large?"
-4. Ask milk: If not specified, default to "regular milk" but confirm: "What kind of milk would you prefer? Regular, oat, almond, soy?"
-5. Ask extras: "Would you like any extras? Extra shot, vanilla syrup, whipped cream?"
-6. Recap the complete order clearly in English
-7. Ask for confirmation: "Does that sound good? Should I confirm this order?"
-8. CRITICAL: After user says YES/confirms, you MUST immediately call the save_order function tool. DO NOT just say "confirmed" - you must actually call save_order()
-9. Only after calling save_order successfully, tell the customer their order is confirmed
+1. GREETING: "Hi, this is Alex from B2B Lead Generator. How can I help you today?"
+2. DISCOVERY: Ask what problem they're trying to solve or what brought them here
+3. QUALIFICATION: Keep conversation focused on understanding their needs
+4. INFORMATION GATHERING: Naturally collect lead details during conversation
+5. FAQ ANSWERING: Answer questions using company information
+6. CLOSING: Summarize and confirm next steps
 
-CLARIFYING QUESTIONS:
-- Ask one or two things at a time to keep it natural
-- If user provides multiple details at once, extract them and only ask about missing fields
-- If user changes their mind, update only that field
+LEAD INFORMATION TO COLLECT (naturally, not like a form):
+- name: Their full name
+- company: Company name
+- email: Email address
+- role: Their job title/role
+- use_case: What they want to use the platform for
+- team_size: Size of their team (small/medium/large or number)
+- timeline: When they're looking to start (now/soon/later)
 
-ERROR HANDLING:
-- If input is unclear, politely ask again
-- If user is off-topic too long, gently bring them back: "I'm loving this chat, but let's get your coffee order sorted out!"
+FAQ HANDLING:
+- When asked about the product, services, pricing, or company, use the answer_faq tool
+- Only provide information from the FAQ data
+- If you don't know something, say: "That's a great question — my team will be better suited to answer that."
 
-IMPORTANT:
-- Keep responses natural and conversational for voice interaction
-- Don't use complex formatting, emojis, or markdown in your speech
-- Use the function tools to manage order state
-- Only call save_order after explicit user confirmation""",
+MEETING SCHEDULING:
+- When user mentions: demo, call, schedule, meeting, appointment, book
+- Use show_available_slots tool to display available times
+- After user selects a time, use book_meeting tool with their selection
+- Confirm the booking with meeting details
+
+EXIT DETECTION:
+Listen for clear exit phrases like: "that's all", "I'm done", "goodbye", "no more questions"
+ONLY call end_call tool ONCE when the user is clearly ending the conversation
+Do NOT call end_call for casual "thanks" during the conversation
+After calling end_call once, do not call it again in the same session
+
+IMPORTANT RULES:
+- Ask 1-2 questions at a time, keep it conversational
+- Don't rush through questions like a checklist
+- If they provide multiple details at once, extract and store them
+- Use the function tools to store information as you collect it
+- Keep responses natural and brief for voice interaction
+- Don't use markdown, emojis, or complex formatting in speech""",
         )
         
-        # Initialize order state
-        self.order_state = {
-            "drinkType": "",
-            "size": "",
-            "milk": "",
-            "extras": [],
-            "name": ""
+        # Initialize lead state
+        self.lead_state = {
+            "name": "",
+            "company": "",
+            "email": "",
+            "role": "",
+            "use_case": "",
+            "team_size": "",
+            "timeline": ""
         }
+        self.conversation_started = False
+        self.lead_saved = False  # Flag to prevent duplicate saves
 
     async def on_enter(self) -> None:
-        """Called when the agent starts - greet the customer"""
-        await self.session.say("Hello! Welcome to Blue Tokai Coffee Roasters. I'm your virtual barista today. What's your name, and what kind of coffee are you in the mood for?")
+        """Called when the agent starts - greet the prospect"""
+        self.conversation_started = True
+        await self.session.say("Hi, this is Alex from B2B Lead Generator. How can I help you today?")
     
-    def _generate_token_number(self) -> str:
-        """Generate a unique token number for the order."""
-        import random
-        import string
-        # Format: BT-YYYYMMDD-XXXX (BT = Blue Tokai, XXXX = random alphanumeric)
-        date_part = datetime.now().strftime("%Y%m%d")
-        random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
-        return f"BT-{date_part}-{random_part}"
+    def _search_faq(self, query: str) -> Optional[str]:
+        """Search FAQ data for relevant answer using keyword matching."""
+        query_lower = query.lower()
+        
+        # Search in FAQs
+        for faq in FAQ_DATA.get("faqs", []):
+            question_lower = faq["question"].lower()
+            # Simple keyword matching
+            if any(word in question_lower for word in query_lower.split() if len(word) > 3):
+                return faq["answer"]
+        
+        # Search in services
+        for service in FAQ_DATA.get("services", []):
+            if any(word in service["name"].lower() or word in service["description"].lower() 
+                   for word in query_lower.split() if len(word) > 3):
+                return f"{service['name']}: {service['description']}"
+        
+        # Check for pricing queries
+        if any(word in query_lower for word in ["price", "pricing", "cost", "plan", "tier"]):
+            pricing = FAQ_DATA.get("pricing", {})
+            return f"We have three plans: Starter at {pricing['starter']['price']}, Professional at {pricing['professional']['price']}, and Enterprise with custom pricing. Would you like details on any specific plan?"
+        
+        return None
     
-    def _generate_html_receipt(self, order_data: dict, token_number: str) -> str:
-        """Generate an HTML receipt visualization for the order."""
+    def _generate_lead_summary_html(self, lead_data: dict) -> str:
+        """Generate an HTML visualization for the lead summary."""
         
-        # Determine cup size for visualization
-        cup_heights = {"small": "100px", "medium": "140px", "large": "180px"}
-        cup_height = cup_heights.get(order_data["size"], "140px")
-        
-        # Check if it's a cold drink
-        is_cold = any(word in order_data["drinkType"].lower() for word in ["iced", "cold", "frappe"])
-        cup_color = "#87CEEB" if is_cold else "#8B4513"
-        
-        # Check for whipped cream
-        has_whipped_cream = any("whipped" in extra.lower() for extra in order_data.get("extras", []))
-        
-        # Build extras list
-        extras_html = ""
-        if order_data.get("extras"):
-            extras_items = "".join([f"<li>{extra}</li>" for extra in order_data["extras"]])
-            extras_html = f"<div style='margin-top: 10px;'><strong>Extras:</strong><ul style='margin: 5px 0; padding-left: 20px;'>{extras_items}</ul></div>"
-        
-        # Whipped cream topping
-        whipped_cream_html = ""
-        if has_whipped_cream:
-            whipped_cream_html = """
-            <div style='position: absolute; top: -20px; left: 50%; transform: translateX(-50%); 
-                        width: 80px; height: 30px; background: #FFFACD; 
-                        border-radius: 50% 50% 0 0; border: 2px solid #F5DEB3;'></div>
-            """
+        # Build lead details rows
+        details_html = ""
+        for key, value in lead_data.items():
+            if key not in ["timestamp", "lead_id"] and value:
+                label = key.replace("_", " ").title()
+                details_html += f"""
+            <div class="lead-row">
+                <span class="label">{label}:</span>
+                <span class="value">{value}</span>
+            </div>
+"""
         
         html = f"""
 <!DOCTYPE html>
@@ -144,11 +166,11 @@ IMPORTANT:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blue Tokai Order - {order_data['name']}</title>
+    <title>Lead Summary - {lead_data.get('name', 'Unknown')}</title>
     <style>
         body {{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f58634 0%, #ff6b35 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -156,22 +178,22 @@ IMPORTANT:
             margin: 0;
             padding: 20px;
         }}
-        .receipt {{
+        .lead-card {{
             background: white;
             border-radius: 20px;
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
         }}
         .header {{
             text-align: center;
-            border-bottom: 3px solid #667eea;
+            border-bottom: 3px solid #f58634;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }}
         .header h1 {{
-            color: #667eea;
+            color: #f58634;
             margin: 0;
             font-size: 28px;
         }}
@@ -180,45 +202,30 @@ IMPORTANT:
             margin: 5px 0 0 0;
             font-size: 14px;
         }}
-        .token-number {{
-            background: #667eea;
+        .lead-id {{
+            background: #f58634;
             color: white;
             padding: 10px 20px;
             border-radius: 25px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             letter-spacing: 1px;
             margin: 15px 0;
             display: inline-block;
         }}
-        .cup-container {{
-            display: flex;
-            justify-content: center;
-            margin: 30px 0;
-            position: relative;
-        }}
-        .cup {{
-            position: relative;
-            width: 100px;
-            height: {cup_height};
-            background: {cup_color};
-            border-radius: 0 0 20px 20px;
-            border: 3px solid #333;
-            box-shadow: inset 0 -20px 30px rgba(0,0,0,0.2);
-        }}
-        .order-details {{
+        .lead-details {{
             background: #f8f9fa;
             border-radius: 10px;
             padding: 20px;
             margin: 20px 0;
         }}
-        .order-row {{
+        .lead-row {{
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
+            padding: 12px 0;
             border-bottom: 1px solid #dee2e6;
         }}
-        .order-row:last-child {{
+        .lead-row:last-child {{
             border-bottom: none;
         }}
         .label {{
@@ -227,7 +234,8 @@ IMPORTANT:
         }}
         .value {{
             color: #212529;
-            text-transform: capitalize;
+            text-align: right;
+            max-width: 60%;
         }}
         .footer {{
             text-align: center;
@@ -236,7 +244,7 @@ IMPORTANT:
             border-top: 2px solid #dee2e6;
         }}
         .footer h2 {{
-            color: #667eea;
+            color: #f58634;
             margin: 0 0 10px 0;
             font-size: 24px;
         }}
@@ -254,47 +262,25 @@ IMPORTANT:
     </style>
 </head>
 <body>
-    <div class="receipt">
+    <div class="lead-card">
         <div class="header">
-            <h1>☕ BLUE TOKAI</h1>
-            <p>Coffee Roasters</p>
-            <div class="token-number">Token: {token_number}</div>
+            <h1>🎯 B2B Lead Generator</h1>
+            <p>Lead Qualification Summary</p>
+            <div class="lead-id">Lead ID: {lead_data.get('lead_id', 'N/A')}</div>
         </div>
         
-        <div class="cup-container">
-            <div class="cup">
-                {whipped_cream_html}
-            </div>
-        </div>
-        
-        <div class="order-details">
-            <div class="order-row">
-                <span class="label">Customer:</span>
-                <span class="value">{order_data['name']}</span>
-            </div>
-            <div class="order-row">
-                <span class="label">Drink:</span>
-                <span class="value">{order_data['drinkType']}</span>
-            </div>
-            <div class="order-row">
-                <span class="label">Size:</span>
-                <span class="value">{order_data['size']}</span>
-            </div>
-            <div class="order-row">
-                <span class="label">Milk:</span>
-                <span class="value">{order_data['milk']}</span>
-            </div>
-            {extras_html}
+        <div class="lead-details">
+            {details_html}
         </div>
         
         <div class="footer">
-            <h2>Order Confirmed!</h2>
-            <p>Your coffee will be ready shortly</p>
-            <p style="color: #667eea; font-weight: 600;">Enjoy your brew! ☕</p>
+            <h2>Lead Captured!</h2>
+            <p>Our team will follow up shortly</p>
+            <p style="color: #f58634; font-weight: 600;">Thank you for your interest! 🚀</p>
         </div>
         
         <div class="timestamp">
-            Order placed: {order_data['timestamp']}
+            Captured: {lead_data.get('timestamp', 'N/A')}
         </div>
     </div>
 </body>
@@ -303,200 +289,337 @@ IMPORTANT:
         return html
 
     @function_tool()
-    async def set_name(self, context: RunContext, name: str) -> str:
-        """Set the customer's name for the order.
+    async def store_lead_info(self, context: RunContext, field: str, value: str) -> str:
+        """Store a piece of lead information. Call this as you naturally collect information during conversation.
         
         Args:
-            name: Customer's name
+            field: The field name - must be one of: name, company, email, role, use_case, team_size, timeline
+            value: The value to store for this field
         """
-        self.order_state["name"] = name
-        logger.info(f"Set name: {name}")
-        
-        if not self.order_state["drinkType"]:
-            return f"Nice to meet you, {name}! What are you in the mood for? Latte, cappuccino, cold brew, mocha, something else?"
-        return f"Got it, {name}!"
+        if field in self.lead_state:
+            self.lead_state[field] = value
+            logger.info(f"Stored {field}: {value}")
+            return f"Got it, {value} noted."
+        return f"I can't store that field. Valid fields are: {', '.join(self.lead_state.keys())}"
 
     @function_tool()
-    async def set_drink_type(self, context: RunContext, drink_type: str) -> str:
-        """Set the drink type in the order.
+    async def answer_faq(self, context: RunContext, question: str) -> str:
+        """Answer a question about the company, product, services, or pricing using FAQ data.
         
         Args:
-            drink_type: The type of coffee drink (e.g., latte, cappuccino, espresso, americano, mocha, cold brew, iced latte)
+            question: The user's question about the company/product
         """
-        self.order_state["drinkType"] = drink_type
-        logger.info(f"Set drink type: {drink_type}")
+        answer = self._search_faq(question)
         
-        if not self.order_state["size"]:
-            return f"Great choice! What size would you like - small, medium, or large?"
-        return f"Changed to {drink_type}!"
+        if answer:
+            logger.info(f"FAQ answered: {question[:50]}...")
+            return answer
+        else:
+            logger.info(f"FAQ not found for: {question[:50]}...")
+            return "That's a great question — my team will be better suited to answer that. I can connect you with them after we finish here."
 
     @function_tool()
-    async def set_size(self, context: RunContext, size: str) -> str:
-        """Set the size of the drink.
-        
-        Args:
-            size: The size of the drink - must be "small", "medium", or "large"
+    async def show_available_slots(self, context: RunContext) -> str:
+        """Show available meeting slots when user wants to schedule a demo or meeting.
+        Call this when user mentions: demo, call, schedule, meeting, appointment, book.
         """
-        size = size.lower()
-        if size not in ["small", "medium", "large"]:
-            size = "medium"
+        available = [slot for slot in MEETING_SLOTS.get("available_slots", []) if slot.get("available", False)]
         
-        self.order_state["size"] = size
-        logger.info(f"Set size: {size}")
+        if not available:
+            return "I'm sorry, we don't have any available slots at the moment. Let me have someone from our team reach out to you directly."
         
-        if not self.order_state["milk"]:
-            return f"Perfect, a {size} {self.order_state['drinkType']}. What kind of milk - regular, oat, almond, soy, or skim?"
-        return f"Changed to {size}!"
-
-    @function_tool()
-    async def set_milk(self, context: RunContext, milk: str) -> str:
-        """Set the milk preference.
+        # Build response with available slots
+        slots_text = "Great! I have the following times available for a demo:\n\n"
+        for i, slot in enumerate(available[:5], 1):  # Show max 5 slots
+            slots_text += f"{i}. {slot['display']}\n"
         
-        Args:
-            milk: Type of milk - "regular", "skim", "oat", "almond", "soy", or "none"
-        """
-        self.order_state["milk"] = milk.lower()
-        logger.info(f"Set milk: {milk}")
+        slots_text += "\nWhich time works best for you? Just tell me the number or the time."
         
-        if not self.order_state["extras"] and self.order_state["name"]:
-            return f"Great! {milk} milk it is. Koi extras chahiye? Extra shot, vanilla syrup, caramel, whipped cream? Ya simple hi?"
-        return f"Changed to {milk} milk!"
-
-    @function_tool()
-    async def add_extras(self, context: RunContext, extras: str) -> str:
-        """Add extras to the order.
-        
-        Args:
-            extras: Comma-separated list of extras (e.g., "extra shot, vanilla syrup, whipped cream")
-        """
-        extras_list = [e.strip() for e in extras.split(",")]
-        self.order_state["extras"] = extras_list
-        logger.info(f"Set extras: {extras_list}")
-        return f"Added {', '.join(extras_list)}!"
-
-    @function_tool()
-    async def no_extras(self, context: RunContext) -> str:
-        """Call this when customer doesn't want any extras."""
-        self.order_state["extras"] = []
-        logger.info("No extras requested")
-        return "No problem, keeping it simple!"
+        logger.info(f"Showed {len(available[:5])} available meeting slots")
+        return slots_text
     
     @function_tool()
-    async def confirm_order(self, context: RunContext) -> str:
-        """Confirm the complete order with the customer before saving. Call this to recap all order details."""
+    async def book_meeting(self, context: RunContext, slot_selection: str) -> str:
+        """Book a meeting slot for the user. 
         
-        # Check if all required fields are filled
-        missing = []
-        if not self.order_state["name"]:
-            missing.append("name")
-        if not self.order_state["drinkType"]:
-            missing.append("drink type")
-        if not self.order_state["size"]:
-            missing.append("size")
-        if not self.order_state["milk"]:
-            missing.append("milk preference")
+        Args:
+            slot_selection: The slot number (1-7) or time description the user selected
+        """
+        # Parse user selection
+        selected_slot = None
+        available = [slot for slot in MEETING_SLOTS.get("available_slots", []) if slot.get("available", False)]
         
-        if missing:
-            return f"I still need: {', '.join(missing)}. Let me know those details."
+        # Try to match by number
+        try:
+            slot_num = int(slot_selection)
+            if 1 <= slot_num <= len(available):
+                selected_slot = available[slot_num - 1]
+        except ValueError:
+            # Try to match by text
+            selection_lower = slot_selection.lower()
+            for slot in available:
+                if selection_lower in slot['display'].lower():
+                    selected_slot = slot
+                    break
         
-        # Build confirmation message
-        extras_text = ""
-        if self.order_state["extras"]:
-            extras_text = f" with {', '.join(self.order_state['extras'])}"
+        if not selected_slot:
+            return "I couldn't find that time slot. Could you please select from the available times I mentioned?"
         
-        confirmation = (
-            f"Alright, here's your order: "
-            f"A {self.order_state['size']} {self.order_state['drinkType']} "
-            f"with {self.order_state['milk']} milk{extras_text} "
-            f"for {self.order_state['name']}. "
-            f"Sab theek hai? Should I lock this in?"
-        )
+        # Check if we have required lead info
+        if not self.lead_state.get("name") or not self.lead_state.get("email"):
+            return "To book the meeting, I'll need your name and email. Could you provide those?"
         
-        logger.info(f"Order confirmation: {self.order_state}")
-        return confirmation
-
-    @function_tool()
-    async def save_order(self, context: RunContext) -> str:
-        """CRITICAL: Save the complete order to a JSON file and send HTML receipt to frontend. 
-        You MUST call this function immediately after the customer confirms their order (says yes/okay/confirm).
-        DO NOT just say the order is confirmed - you must actually call this function to save it."""
+        # SAFEGUARD: Ensure directory and file exist
+        meetings_dir = "meetings"
+        meetings_file = self._ensure_directory_and_file(meetings_dir, "meetings.json")
         
-        # Validate all fields are filled
-        if not all([
-            self.order_state["name"],
-            self.order_state["drinkType"],
-            self.order_state["size"],
-            self.order_state["milk"]
-        ]):
-            return "I can't save the order yet - some details are missing. Let me confirm everything first."
+        # Generate meeting ID
+        import random
+        import string
+        date_part = datetime.now().strftime("%Y%m%d")
+        random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+        meeting_id = f"MTG-{date_part}-{random_part}"
         
-        # Create orders directory if it doesn't exist
-        orders_dir = "orders"
-        os.makedirs(orders_dir, exist_ok=True)
-        
-        # Generate filename with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{orders_dir}/order_{timestamp}_{self.order_state['name']}.json"
-        
-        # Generate unique token number
-        token_number = self._generate_token_number()
-        
-        # Prepare order data
-        order_data = {
-            **self.order_state,
-            "token_number": token_number,
-            "timestamp": datetime.now().isoformat(),
+        # Prepare meeting data
+        meeting_data = {
+            "meeting_id": meeting_id,
+            "name": self.lead_state.get("name", ""),
+            "email": self.lead_state.get("email", ""),
+            "company": self.lead_state.get("company", ""),
+            "role": self.lead_state.get("role", ""),
+            "slot_id": selected_slot["id"],
+            "meeting_time": selected_slot["datetime"],
+            "meeting_display": selected_slot["display"],
+            "booked_at": datetime.now().isoformat(),
             "status": "confirmed"
         }
         
-        # Save to JSON file
-        with open(filename, 'w') as f:
-            json.dump(order_data, f, indent=2)
+        # Load existing meetings safely
+        existing_meetings = []
+        try:
+            with open(meetings_file, 'r') as f:
+                existing_meetings = json.load(f)
+                if not isinstance(existing_meetings, list):
+                    existing_meetings = []
+        except Exception as e:
+            logger.warning(f"⚠️ Could not load existing meetings, starting fresh: {e}")
+            existing_meetings = []
         
-        # Log the machine-readable format
-        json_str = json.dumps(self.order_state, separators=(',', ':'))
-        logger.info(f"SAVE_ORDER_JSON: {json_str}")
-        logger.info(f"TOKEN_NUMBER: {token_number}")
-        logger.info(f"Order saved to {filename}")
+        # Append new meeting
+        existing_meetings.append(meeting_data)
         
-        # Generate HTML visualization
-        html_filename = f"{orders_dir}/order_{timestamp}_{self.order_state['name']}.html"
-        html_content = self._generate_html_receipt(order_data, token_number)
-        with open(html_filename, 'w', encoding='utf-8') as f:
-            f.write(html_content)
-        logger.info(f"HTML_SNIPPET:")
-        logger.info(html_content)
-        logger.info(f"END_HTML_SNIPPET")
-        logger.info(f"HTML receipt saved to {html_filename}")
+        # Save with error handling
+        try:
+            with open(meetings_file, 'w') as f:
+                json.dump(existing_meetings, f, indent=2)
+            logger.info(f"✅ Meeting saved to {meetings_file}")
+        except Exception as e:
+            logger.error(f"❌ Failed to save meeting: {e}")
+            # Continue anyway - don't fail the conversation
         
-        # Reset order state for next customer
-        self.order_state = {
-            "drinkType": "",
-            "size": "",
-            "milk": "",
-            "extras": [],
-            "name": ""
+        # Also save individual meeting file (with error handling)
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            safe_name = self.lead_state.get('name', 'unknown').replace('/', '_').replace('\\', '_')
+            individual_file = f"{meetings_dir}/meeting_{timestamp}_{safe_name}.json"
+            with open(individual_file, 'w') as f:
+                json.dump(meeting_data, f, indent=2)
+            logger.info(f"✅ Individual meeting file saved: {individual_file}")
+        except Exception as e:
+            logger.warning(f"⚠️ Could not save individual meeting file: {e}")
+        
+        logger.info(f"MEETING_BOOKED: {meeting_id}")
+        logger.info(f"MEETING_JSON: {json.dumps(meeting_data, separators=(',', ':'))}")
+        
+        # Mark slot as unavailable (update slots.json)
+        try:
+            for slot in MEETING_SLOTS.get("available_slots", []):
+                if slot["id"] == selected_slot["id"]:
+                    slot["available"] = False
+            
+            with open("slots.json", 'w') as f:
+                json.dump(MEETING_SLOTS, f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to update slots: {e}")
+        
+        confirmation = f"Perfect! I've scheduled a demo for {selected_slot['display']}. You'll receive a calendar invite at {self.lead_state.get('email')}. Meeting ID: {meeting_id}. Looking forward to speaking with you!"
+        
+        return confirmation
+
+    def _ensure_directory_and_file(self, directory: str, filename: str) -> str:
+        """Safeguard: Ensure directory and file exist before writing.
+        
+        Args:
+            directory: Directory path (e.g., "leads")
+            filename: Filename (e.g., "leads.json")
+            
+        Returns:
+            Full file path
+        """
+        # Create directory if it doesn't exist
+        try:
+            os.makedirs(directory, exist_ok=True)
+            logger.info(f"✅ Directory ensured: {directory}")
+        except Exception as e:
+            logger.error(f"❌ Failed to create directory {directory}: {e}")
+            raise
+        
+        # Full file path
+        file_path = os.path.join(directory, filename)
+        
+        # Create file with empty array if it doesn't exist
+        if not os.path.exists(file_path):
+            try:
+                with open(file_path, 'w') as f:
+                    json.dump([], f, indent=2)
+                logger.info(f"✅ File created: {file_path}")
+            except Exception as e:
+                logger.error(f"❌ Failed to create file {file_path}: {e}")
+                raise
+        
+        # Verify file is readable and has valid JSON
+        try:
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+                if not isinstance(data, list):
+                    # Fix corrupted file
+                    with open(file_path, 'w') as fw:
+                        json.dump([], fw, indent=2)
+                    logger.warning(f"⚠️ Fixed corrupted file: {file_path}")
+        except json.JSONDecodeError:
+            # Fix corrupted JSON
+            with open(file_path, 'w') as f:
+                json.dump([], f, indent=2)
+            logger.warning(f"⚠️ Fixed invalid JSON in: {file_path}")
+        except Exception as e:
+            logger.error(f"❌ Failed to verify file {file_path}: {e}")
+            raise
+        
+        return file_path
+
+    @function_tool()
+    async def end_call(self, context: RunContext) -> str:
+        """Call this when the user indicates they're done (says thanks, bye, done, that's all, etc.). 
+        This will summarize the lead and save it."""
+        
+        # Prevent duplicate saves
+        if self.lead_saved:
+            logger.info("⚠️ Lead already saved, skipping duplicate save")
+            return "Thank you! I've already captured your information. Have a great day!"
+        
+        # Check if we have any lead data worth saving
+        has_data = any([
+            self.lead_state.get("name"),
+            self.lead_state.get("company"),
+            self.lead_state.get("email")
+        ])
+        
+        if not has_data:
+            logger.info("⚠️ No lead data to save")
+            return "Thank you for your time! Feel free to reach out anytime."
+        
+        # Mark as saved to prevent duplicates
+        self.lead_saved = True
+        
+        # Generate lead ID
+        import random
+        import string
+        date_part = datetime.now().strftime("%Y%m%d")
+        random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+        lead_id = f"LEAD-{date_part}-{random_part}"
+        
+        # Prepare lead data
+        lead_data = {
+            **self.lead_state,
+            "lead_id": lead_id,
+            "timestamp": datetime.now().isoformat()
         }
         
-        # Send HTML as data message to frontend
-        logger.info("Sending HTML as data message to frontend")
-        html_message = f"HTML_SNIPPET:{html_content}END_HTML_SNIPPET"
+        # SAFEGUARD: Ensure directory and file exist
+        leads_dir = "leads"
+        leads_file = self._ensure_directory_and_file(leads_dir, "leads.json")
         
-        # Send via data channel using session's room
+        # Load existing leads safely
+        existing_leads = []
+        try:
+            with open(leads_file, 'r') as f:
+                existing_leads = json.load(f)
+                if not isinstance(existing_leads, list):
+                    existing_leads = []
+        except Exception as e:
+            logger.warning(f"⚠️ Could not load existing leads, starting fresh: {e}")
+            existing_leads = []
+        
+        # Append new lead
+        existing_leads.append(lead_data)
+        
+        # Save with error handling
+        try:
+            with open(leads_file, 'w') as f:
+                json.dump(existing_leads, f, indent=2)
+            logger.info(f"✅ Lead saved to {leads_file}")
+        except Exception as e:
+            logger.error(f"❌ Failed to save lead: {e}")
+            # Continue anyway - don't fail the conversation
+        
+        # Also save individual lead file (with error handling)
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            safe_name = self.lead_state.get('name', 'unknown').replace('/', '_').replace('\\', '_')
+            individual_file = f"{leads_dir}/lead_{timestamp}_{safe_name}.json"
+            with open(individual_file, 'w') as f:
+                json.dump(lead_data, f, indent=2)
+            logger.info(f"✅ Individual lead file saved: {individual_file}")
+        except Exception as e:
+            logger.warning(f"⚠️ Could not save individual lead file: {e}")
+        
+        logger.info(f"LEAD_SAVED: {lead_id}")
+        logger.info(f"LEAD_JSON: {json.dumps(lead_data, separators=(',', ':'))}")
+        
+        # Generate HTML summary
+        html_content = self._generate_lead_summary_html(lead_data)
+        html_filename = f"{leads_dir}/lead_{timestamp}_{self.lead_state.get('name', 'unknown')}.html"
+        with open(html_filename, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        
+        # Send HTML to frontend
+        html_message = f"HTML_SNIPPET:{html_content}END_HTML_SNIPPET"
         try:
             await self.session.room.local_participant.publish_data(
                 html_message.encode('utf-8'),
                 reliable=True
             )
-            logger.info("✅ HTML sent via data message")
+            logger.info("✅ Lead HTML sent to frontend")
         except Exception as e:
-            logger.error(f"❌ Failed to send HTML via data message: {e}")
+            logger.error(f"❌ Failed to send lead HTML: {e}")
         
-        # ALSO return confirmation with HTML embedded as fallback
-        confirmation = f"Perfect! Your Blue Tokai order is locked in. Your {order_data['size']} {order_data['drinkType']} will be ready shortly. Thank you, {order_data['name']}! Enjoy your brew!"
+        # Build verbal summary
+        summary_parts = []
+        if self.lead_state["name"]:
+            summary_parts.append(f"I spoke with {self.lead_state['name']}")
+        if self.lead_state["company"]:
+            summary_parts.append(f"from {self.lead_state['company']}")
+        if self.lead_state["role"]:
+            summary_parts.append(f"who is a {self.lead_state['role']}")
+        if self.lead_state["use_case"]:
+            summary_parts.append(f"They're interested in {self.lead_state['use_case']}")
+        if self.lead_state["timeline"]:
+            summary_parts.append(f"Timeline: {self.lead_state['timeline']}")
         
-        # Return both confirmation and HTML for chat message fallback
-        return f"{confirmation} HTML_SNIPPET:{html_content}END_HTML_SNIPPET"
+        summary = ". ".join(summary_parts) if summary_parts else "I've captured the lead information"
+        
+        # Reset lead state
+        self.lead_state = {
+            "name": "",
+            "company": "",
+            "email": "",
+            "role": "",
+            "use_case": "",
+            "team_size": "",
+            "timeline": ""
+        }
+        
+        return f"Perfect! {summary}. Our team will follow up with you shortly. Thank you for your time! HTML_SNIPPET:{html_content}END_HTML_SNIPPET"
 
 
 def prewarm(proc: JobProcess):
@@ -572,7 +695,7 @@ async def entrypoint(ctx: JobContext):
 
     # Start the session, which initializes the voice pipeline and warms up the models
     await session.start(
-        agent=CoffeeBarista(),
+        agent=B2BLeadSDR(),
         room=ctx.room,
         room_input_options=RoomInputOptions(
             # For telephony applications, use `BVCTelephony` for best results

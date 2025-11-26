@@ -295,90 +295,56 @@ export const BlueTokaSessionView = ({
       {/* Animated Grid Pattern */}
       <AnimatedGrid />
       
-      {/* MODE: WELCOME (Ordering) */}
+      {/* MODE: WELCOME (Chat) */}
       {mode === "welcome" && (
-        <div className={styles.welcomeLayout}>
-          {/* LEFT: Animated Coffee Cup Card */}
-          <div className={styles.coffeeCard}>
-            <div className={styles.coffeeCardInner}>
-              {/* Animated Coffee Cup */}
-              <div className={styles.cupContainer}>
-                {drinkOrder ? (
-                  <div className={`${styles.cup} ${styles[drinkOrder.size]} ${styles[drinkOrder.temperature]} ${styles[animationState]}`}>
-                    {/* Pouring stream - only visible during pouring animation */}
-                    {animationState === 'pouring' && (
-                      <div className={styles.pouringStream}></div>
-                    )}
-                    
-                    <div className={`${styles.coffeeLiquid} ${styles[drinkOrder.type.toLowerCase()]}`}></div>
-                    
-                    {/* Milk swirl animation - plays during pouring if milk is involved */}
-                    {animationState === 'pouring' && (drinkOrder.type === 'Latte' || drinkOrder.type === 'Cappuccino') && (
-                      <div className={styles.milkSwirl}></div>
-                    )}
-                    
-                    {drinkOrder.hasFoam && <div className={styles.foam}></div>}
-                    {drinkOrder.hasWhippedCream && (
-                      <div className={styles.whippedCream}>
-                        <div className={styles.creamSwirl}></div>
-                      </div>
-                    )}
-                    {drinkOrder.temperature === 'hot' && (
-                      <div className={`${styles.steamContainer} ${animationState === 'idle' ? styles.idleSteam : ''}`}>
-                        <div className={styles.steam}></div>
-                        <div className={styles.steam}></div>
-                        <div className={styles.steam}></div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className={styles.cupPlaceholder}>
-                    <div className={styles.cupIcon}>☕</div>
-                    {/* Idle steam animation before order */}
-                    <div className={`${styles.steamContainer} ${styles.idleSteam}`}>
-                      <div className={styles.steam}></div>
-                      <div className={styles.steam}></div>
-                      <div className={styles.steam}></div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Copy */}
-              <div className={styles.copySection}>
-                <h2 className={styles.headline}>Your Blue Tokai barista</h2>
-                <p className={styles.subline}>Order your perfect coffee in English or Hindi</p>
-              </div>
+        <div className={styles.fullScreenChat}>
+          {/* AI Status Indicator */}
+          <div className={styles.aiIndicator}>
+            <div className={`${styles.aiAvatar} ${isAgentSpeaking ? styles.speaking : isListening ? styles.listening : ''}`}>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+              </svg>
+              {isAgentSpeaking && (
+                <div className={styles.speakingWaves}>
+                  <div className={styles.wave}></div>
+                  <div className={styles.wave}></div>
+                  <div className={styles.wave}></div>
+                </div>
+              )}
+            </div>
+            <div className={styles.aiStatus}>
+              <span className={styles.aiName}>Alex</span>
+              <span className={styles.aiState}>
+                {isAgentSpeaking ? 'Speaking...' : isListening ? 'Listening...' : 'Ready'}
+              </span>
             </div>
           </div>
 
-          {/* RIGHT: Chat / Messages / Order Interaction */}
-          <div className={styles.chatArea}>
-            <div className={styles.chatCard}>
-              <div className={styles.messages}>
-                {messages.map((msg, index) => {
-                  const isUser = msg.from?.identity === room.localParticipant.identity;
-                  return (
-                    <div 
-                      key={index} 
-                      className={isUser ? styles.userMessage : styles.agentMessage}
-                    >
-                      <div className={styles.messageContent}>
-                        {msg.message}
-                      </div>
-                    </div>
-                  );
-                })}
-                
-                {messages.length === 0 && (
-                  <div className={styles.emptyChat}>
-                    <div className={styles.emptyChatIcon}>💬</div>
-                    <p>Start speaking to place your order...</p>
+          {/* Messages */}
+          <div className={styles.messages}>
+            {messages.map((msg, index) => {
+              const isUser = msg.from?.identity === room.localParticipant.identity;
+              return (
+                <div 
+                  key={index} 
+                  className={isUser ? styles.userMessage : styles.agentMessage}
+                >
+                  <div className={styles.messageContent}>
+                    {msg.message}
                   </div>
-                )}
-                <div ref={messagesEndRef} />
+                </div>
+              );
+            })}
+            
+            {messages.length === 0 && (
+              <div className={styles.emptyChat}>
+                <div className={styles.emptyChatIcon}>💬</div>
+                <p>Start speaking to begin the conversation...</p>
               </div>
-            </div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
         </div>
       )}
@@ -398,8 +364,8 @@ export const BlueTokaSessionView = ({
             {/* Order History */}
             {orderHistory.length > 0 ? (
               <div className={styles.orderHistoryContainer}>
-                <h2 className={styles.orderHistoryTitle}>Order History</h2>
-                <p className={styles.orderHistorySubtitle}>Your Blue Tokai orders from this session</p>
+                <h2 className={styles.orderHistoryTitle}>Lead History</h2>
+                <p className={styles.orderHistorySubtitle}>Leads captured in this session</p>
                 
                 {orderHistory.map((order, index) => (
                   <div key={index} className={styles.orderCard}>
@@ -444,9 +410,9 @@ export const BlueTokaSessionView = ({
               </div>
             ) : (
               <div className={styles.emptyBill}>
-                <div className={styles.emptyChatIcon}>☕</div>
-                <h3 style={{ color: '#12B1C5', marginBottom: '10px' }}>No Orders Yet</h3>
-                <p>Place your first coffee order to see it here</p>
+                <div className={styles.emptyChatIcon}>🎯</div>
+                <h3 style={{ color: '#f58634', marginBottom: '10px' }}>No Leads Yet</h3>
+                <p>Start a conversation to capture your first lead</p>
               </div>
             )}
           </div>

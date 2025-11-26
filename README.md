@@ -1,334 +1,334 @@
-# Blue Tokai Coffee Voice Assistant 🎙️☕
+# 🎯 B2B Lead Generator - AI-Powered SDR Voice Agent
 
-A multilingual voice-powered coffee ordering system built with LiveKit Agents, featuring real-time voice interaction, animated coffee visualizations, and order management.
+> **Day 5 - Murf AI Voice Agent Challenge**
 
-![Blue Tokai Coffee Bot](https://img.shields.io/badge/Voice-Assistant-12B1C5?style=for-the-badge)
-![LiveKit](https://img.shields.io/badge/LiveKit-Agents-8FE4F9?style=for-the-badge)
-![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge)
+An intelligent Sales Development Representative (SDR) voice agent that qualifies leads through natural conversation, answers FAQs, and schedules demo meetings - all powered by voice.
+
+[![LiveKit](https://img.shields.io/badge/LiveKit-Agents-blue)](https://livekit.io)
+[![Murf](https://img.shields.io/badge/Murf-Falcon%20TTS-orange)](https://murf.ai)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org)
+[![Python](https://img.shields.io/badge/Python-3.11+-green)](https://python.org)
 
 ## ✨ Features
 
-### 🎤 Voice Interaction
-- **Natural Conversation**: Speak naturally in English to place orders
-- **Real-time STT**: Powered by Deepgram Nova-3
-- **Natural TTS**: High-quality voice synthesis with Murf Falcon
-- **Smart Turn Detection**: Multilingual turn detection for smooth conversations
+### 🎙️ Voice-First Experience
+- **Natural Conversations**: Powered by Murf Falcon TTS (fastest TTS API)
+- **Real-time Speech Recognition**: Deepgram Nova-3 for accurate transcription
+- **Smart Turn Detection**: Multilingual VAD for natural conversation flow
 
-### ☕ Coffee Ordering
-- **Complete Menu**: Espresso, Americano, Cappuccino, Latte, Flat White, Mocha, Cold Brew, and more
-- **Customization**: Size (small/medium/large), milk type (regular/oat/almond/soy), extras
-- **Order Confirmation**: Clear recap before finalizing
-- **Unique Tokens**: Each order gets a unique BT-YYYYMMDD-XXXX token
+### 🤖 Intelligent SDR Agent
+- **Lead Qualification**: Captures 7 key data points naturally
+  - Name, Company, Email
+  - Role, Use Case
+  - Team Size, Timeline
+- **FAQ Answering**: Responds to product questions from knowledge base
+- **Meeting Scheduling**: Books demos from available time slots
+- **Exit Detection**: Knows when to summarize and save leads
 
-### 🎨 Visual Experience
-- **Animated Coffee Cup**: Real-time pouring animation when orders are placed
-- **Professional Design**: Clean, minimal UI with Blue Tokai brand colors
-- **Responsive Layout**: Works on desktop and mobile
-- **Order History**: View all orders from the current session
+### 💾 Data Persistence
+- **Lead Storage**: All leads saved to JSON with timestamps
+- **Meeting Bookings**: Scheduled meetings with confirmation
+- **Individual Records**: Separate files for each lead/meeting
 
-### 📊 Order Management
-- **JSON Storage**: Orders saved as structured JSON files
-- **HTML Receipts**: Beautiful HTML receipts generated for each order
-- **Session History**: Track multiple orders in a single session
-- **Real-time Updates**: Instant order confirmation and visualization
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Frontend (Next.js)                    │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │  Voice UI    │  │  Animation   │  │  Order       │      │
-│  │  Component   │  │  System      │  │  History     │      │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
-└─────────────────────────────────────────────────────────────┘
-                            ↕ LiveKit WebRTC
-┌─────────────────────────────────────────────────────────────┐
-│                    Backend (Python Agent)                    │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │  LLM         │  │  STT         │  │  TTS         │      │
-│  │  (Gemini)    │  │  (Deepgram)  │  │  (Murf)      │      │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
-│  ┌──────────────────────────────────────────────────┐      │
-│  │         Order Management & Storage                │      │
-│  └──────────────────────────────────────────────────┘      │
-└─────────────────────────────────────────────────────────────┘
-```
+### 🎨 Modern UI
+- **Clean Interface**: Full-screen chat with AI status indicator
+- **Real-time Updates**: Live speaking/listening animations
+- **Orange Theme**: Professional B2B design (#f58634)
+- **Mobile Responsive**: Works on all devices
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Python 3.11+** with `uv` package manager
-- **Node.js 18+** with `npm` or `pnpm`
-- **LiveKit Account** (free tier available)
-- **API Keys**: Deepgram, Murf, Google Gemini
 
-### Backend Setup
+- **Python 3.11+** with pip or uv
+- **Node.js 18+** with npm
+- **API Keys**:
+  - [LiveKit](https://livekit.io) account
+  - [Murf API](https://murf.ai/api) key
+  - [Google AI](https://ai.google.dev) API key
+  - [Deepgram](https://deepgram.com) API key
 
-1. **Navigate to backend directory:**
-   ```bash
-   cd backend
-   ```
+### Installation
 
-2. **Copy environment file:**
-   ```bash
-   cp .env.example .env.local
-   ```
+#### 1. Clone the Repository
+```bash
+git clone <your-repo-url>
+cd ten-days-of-voice-agents-2025
+```
 
-3. **Add your API keys to `.env.local`:**
-   ```env
-   LIVEKIT_URL=wss://your-livekit-url.livekit.cloud
-   LIVEKIT_API_KEY=your_api_key
-   LIVEKIT_API_SECRET=your_api_secret
-   GOOGLE_API_KEY=your_gemini_api_key
-   MURF_API_KEY=your_murf_api_key
-   DEEPGRAM_API_KEY=your_deepgram_api_key
-   ```
+#### 2. Backend Setup
+```bash
+cd backend
 
-4. **Install dependencies and run:**
-   ```bash
-   uv run src/agent.py dev
-   ```
+# Create virtual environment
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+source .venv/bin/activate  # Mac/Linux
 
-### Frontend Setup
+# Install dependencies
+pip install -r requirements.txt
+# OR using uv (faster)
+uv sync
 
-1. **Navigate to frontend directory:**
-   ```bash
-   cd frontend
-   ```
+# Configure environment
+cp .env.example .env.local
+# Edit .env.local with your API keys
+```
 
-2. **Copy environment file:**
-   ```bash
-   cp .env.example .env.local
-   ```
+#### 3. Frontend Setup
+```bash
+cd frontend
 
-3. **Add LiveKit credentials to `.env.local`:**
-   ```env
-   LIVEKIT_URL=wss://your-livekit-url.livekit.cloud
-   LIVEKIT_API_KEY=your_api_key
-   LIVEKIT_API_SECRET=your_api_secret
-   ```
+# Install dependencies
+npm install
 
-4. **Install dependencies:**
-   ```bash
-   npm install
-   # or
-   pnpm install
-   ```
+# Configure environment
+cp .env.example .env.local
+# Edit .env.local with your LiveKit credentials
+```
 
-5. **Run development server:**
-   ```bash
-   npm run dev
-   # or
-   pnpm dev
-   ```
+### Running the Application
 
-6. **Open browser:**
-   ```
-   http://localhost:3000
-   ```
+#### Start Backend (Terminal 1)
+```bash
+cd backend
+python src/agent.py dev
+```
 
-## 📁 Project Structure
+#### Start Frontend (Terminal 2)
+```bash
+cd frontend
+npm run dev
+```
+
+#### Open Browser
+Navigate to: `http://localhost:3000`
+
+## 📱 Access on Phone
+
+Use ngrok to access on your phone:
+
+```bash
+# Install ngrok from https://ngrok.com/download
+ngrok config add-authtoken YOUR_TOKEN
+ngrok http 3000
+```
+
+Open the HTTPS URL on your phone's browser.
+
+## 🎤 How to Use
+
+### Sample Conversation Flow
+
+1. **Start**: Click "Start Conversation"
+
+2. **Agent Greets**: 
+   > "Hi, this is Alex from B2B Lead Generator. How can I help you today?"
+
+3. **Ask Questions**:
+   - "What does your product do?"
+   - "Do you have a free tier?"
+   - "What's the pricing?"
+
+4. **Schedule Demo**:
+   - "I'd like to schedule a demo"
+   - Agent shows available slots
+   - Select a time
+
+5. **Provide Information**:
+   - "My name is John from TechCorp"
+   - "I'm the VP of Sales"
+   - "We need help with lead generation"
+   - "We have a team of 20"
+   - "We want to start soon"
+
+6. **End Conversation**:
+   - "That's all, thanks"
+   - Agent summarizes and saves lead
+
+## 🏗️ Architecture
+
+### Tech Stack
+
+**Backend:**
+- LiveKit Agents (Python)
+- Google Gemini 2.5 Flash (LLM)
+- Murf Falcon (TTS)
+- Deepgram Nova-3 (STT)
+- Function calling for tools
+
+**Frontend:**
+- Next.js 15 with Turbopack
+- React with LiveKit Components
+- Tailwind CSS
+- WebRTC via LiveKit
+
+### Project Structure
 
 ```
-ten-days-of-voice-agents-2025/
 ├── backend/
 │   ├── src/
-│   │   └── agent.py              # Main agent logic
-│   ├── orders/                   # Order storage (JSON + HTML)
-│   ├── .env.local               # Environment variables (not in git)
-│   ├── .env.example             # Example environment file
-│   └── pyproject.toml           # Python dependencies
+│   │   └── agent.py          # Main agent logic
+│   ├── faq.json              # Company knowledge base
+│   ├── slots.json            # Available meeting times
+│   ├── leads/                # Captured leads (gitignored)
+│   ├── meetings/             # Booked meetings (gitignored)
+│   └── .env.local            # API keys (gitignored)
 │
 ├── frontend/
-│   ├── app/                     # Next.js app directory
-│   ├── components/
-│   │   └── app/
-│   │       ├── blue-tokai-session.tsx      # Main session component
-│   │       ├── blue-tokai-session.module.css # Styles & animations
-│   │       └── animated-grid.tsx           # Background animation
-│   ├── hooks/
-│   │   └── useRoom.ts           # LiveKit room management
-│   ├── .env.local              # Environment variables (not in git)
-│   └── package.json            # Node dependencies
+│   ├── app/                  # Next.js pages
+│   ├── components/           # React components
+│   ├── styles/               # CSS with orange theme
+│   └── .env.local            # Config (gitignored)
 │
-└── README_BLUE_TOKAI.md        # This file
+└── README.md                 # This file
 ```
 
-## 🎯 How It Works
+## 🎨 Customization
 
-### 1. User Flow
-```
-User starts session
-    ↓
-Agent greets and asks for name
-    ↓
-User provides order details (drink, size, milk, extras)
-    ↓
-Agent confirms order
-    ↓
-User confirms
-    ↓
-Order saved & HTML receipt generated
-    ↓
-Animation plays & order added to history
-```
+### Update Company Information
 
-### 2. Technical Flow
-```
-Frontend connects to LiveKit room
-    ↓
-Backend agent joins room
-    ↓
-User speaks → Deepgram STT → Text
-    ↓
-Text → Gemini LLM → Response
-    ↓
-Response → Murf TTS → Audio
-    ↓
-Audio played to user
-    ↓
-On order confirmation:
-  - Save JSON file
-  - Generate HTML receipt
-  - Send HTML via data message
-  - Frontend receives & displays
-  - Animation triggers
-```
-
-## 🎨 Design System
-
-### Colors
-- **Primary**: `#12B1C5` (Teal)
-- **Accent**: `#8FE4F9` (Light Blue)
-- **Surface**: `#FFF9EF` (Cream)
-
-### Typography
-- **Font**: Segoe UI, system fonts
-- **Headings**: 700 weight
-- **Body**: 500 weight
-
-### Animations
-- **Cup Pouring**: 2.5s duration
-- **Idle Hover**: 4s loop
-- **Steam Rise**: 3.5s loop
-- **Card Slide**: 400ms ease-out
-
-## 🔧 Configuration
-
-### Agent Behavior
-Edit `backend/src/agent.py` to customize:
-- Conversation flow
-- Menu items
-- Confirmation logic
-- Order validation
-
-### UI Customization
-Edit `frontend/components/app/blue-tokai-session.module.css` to customize:
-- Colors and branding
-- Animation timings
-- Layout proportions
-- Component styles
-
-## 📊 Order Data Structure
-
-### JSON Format
+Edit `backend/faq.json`:
 ```json
 {
-  "drinkType": "Latte",
-  "size": "medium",
-  "milk": "oat",
-  "extras": ["vanilla syrup"],
-  "name": "John",
-  "token_number": "BT-20251123-A1B2",
-  "timestamp": "2025-11-23T19:30:00.000000",
-  "status": "confirmed"
+  "company_name": "Your Company",
+  "tagline": "Your tagline",
+  "services": [...],
+  "pricing": {...},
+  "faqs": [...]
 }
 ```
 
-### HTML Receipt
-Each order generates a styled HTML receipt with:
-- Customer name
-- Order details
-- Unique token
-- Timestamp
-- Visual coffee cup illustration
+### Update Meeting Slots
 
-## 🐛 Troubleshooting
+Edit `backend/slots.json`:
+```json
+{
+  "available_slots": [
+    {
+      "id": "slot_1",
+      "datetime": "2025-11-27T10:00:00",
+      "display": "Tomorrow at 10:00 AM",
+      "available": true
+    }
+  ]
+}
+```
 
-### Backend Issues
+### Change Theme
 
-**Agent not responding:**
-- Check API keys in `.env.local`
-- Verify LiveKit connection
-- Check backend logs for errors
+Edit `frontend/styles/globals.css`:
+```css
+:root {
+  --primary-orange: #f58634;  /* Your color */
+}
+```
 
-**Orders not saving:**
-- Ensure `orders/` directory exists
-- Check file permissions
-- Verify agent is calling `save_order()` function
+## 📊 Features Implemented
 
-### Frontend Issues
+### ✅ Primary Goal (Day 5)
+- [x] SDR persona with company knowledge
+- [x] FAQ answering from JSON
+- [x] Lead capture (7 fields)
+- [x] Natural conversation flow
+- [x] End-of-call summary
+- [x] Lead persistence to JSON
 
-**No audio:**
-- Grant microphone permissions
-- Check browser compatibility (Chrome/Edge recommended)
-- Verify LiveKit credentials
+### ✅ Advanced Goal 1 (Bonus)
+- [x] Mock meeting scheduler
+- [x] Available time slots
+- [x] Meeting booking
+- [x] Confirmation with meeting ID
 
-**Animation not playing:**
-- Check browser console for errors
-- Verify data message is received
-- Check HTML parsing in console logs
+## 🔧 Configuration
 
-**Order history empty:**
-- Open browser console (F12)
-- Look for "📝 Added to order history" logs
-- Verify data message contains HTML
+### Environment Variables
 
-## 🔐 Security Notes
+**Backend (.env.local):**
+```env
+LIVEKIT_URL=wss://your-project.livekit.cloud
+LIVEKIT_API_KEY=your_api_key
+LIVEKIT_API_SECRET=your_api_secret
+GOOGLE_API_KEY=your_google_api_key
+MURF_API_KEY=your_murf_api_key
+DEEPGRAM_API_KEY=your_deepgram_api_key
+```
 
-- **Never commit `.env.local` files** - they contain sensitive API keys
-- **Use `.env.example`** as a template for required variables
-- **Rotate API keys** if accidentally exposed
-- **Use environment variables** for all sensitive data
+**Frontend (.env.local):**
+```env
+LIVEKIT_URL=wss://your-project.livekit.cloud
+LIVEKIT_API_KEY=your_api_key
+LIVEKIT_API_SECRET=your_api_secret
+```
 
-## 📝 API Keys Required
+## 📝 Data Storage
 
-1. **LiveKit** - [Get free account](https://livekit.io/)
-2. **Deepgram** - [Get API key](https://deepgram.com/)
-3. **Murf** - [Get API key](https://murf.ai/)
-4. **Google Gemini** - [Get API key](https://ai.google.dev/)
+### Leads
+- **Location**: `backend/leads/`
+- **Format**: JSON with timestamp
+- **Files**: 
+  - `leads.json` - All leads
+  - `lead_YYYYMMDD_HHMMSS_Name.json` - Individual leads
 
-## 🤝 Contributing
+### Meetings
+- **Location**: `backend/meetings/`
+- **Format**: JSON with timestamp
+- **Files**:
+  - `meetings.json` - All meetings
+  - `meeting_YYYYMMDD_HHMMSS_Name.json` - Individual meetings
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+## 🚀 Deployment
+
+### Backend
+Deploy to:
+- Railway
+- Render
+- Fly.io
+- AWS Lambda
+
+### Frontend
+Deploy to:
+- **Vercel** (recommended)
+- Netlify
+- Cloudflare Pages
+
+```bash
+cd frontend
+vercel
+```
+
+## 🎯 Challenge Completion
+
+This project completes **Day 5** of the **Murf AI Voice Agent Challenge**:
+
+- ✅ Built an AI-powered SDR agent
+- ✅ Implemented FAQ answering
+- ✅ Lead qualification and capture
+- ✅ Meeting scheduling (bonus)
+- ✅ Real-time voice interaction
+- ✅ Data persistence
+
+**Built with Murf Falcon TTS** - The fastest text-to-speech API 🚀
 
 ## 📄 License
 
-This project is part of the LiveKit Agents challenge. See individual LICENSE files in backend and frontend directories.
+MIT License - See [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **LiveKit** - Real-time communication platform
-- **Deepgram** - Speech-to-text API
-- **Murf** - Text-to-speech API
-- **Google Gemini** - LLM for conversation
-- **Blue Tokai Coffee Roasters** - Brand inspiration
+- **Murf AI** for the Voice Agent Challenge
+- **LiveKit** for the Agents framework
+- **Google** for Gemini 2.5 Flash
+- **Deepgram** for speech recognition
 
 ## 📞 Support
 
 For issues or questions:
-1. Check the troubleshooting section
-2. Review console logs
-3. Check API key validity
-4. Verify network connectivity
+- Check [LiveKit Agents Docs](https://docs.livekit.io/agents)
+- Review [Murf API Docs](https://murf.ai/api)
 
 ---
 
-**Built with ❤️ for the LiveKit Agents Challenge**
+**#MurfAIVoiceAgentsChallenge** | **#10DaysofAIVoiceAgents**
 
-*Enjoy your virtual coffee experience!* ☕✨
+Built with ❤️ by [Your Name]

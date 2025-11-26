@@ -1,0 +1,132 @@
+{
+  "company_name": "B2B Lead Generator",
+  "tagline": "AI-Powered B2B Lead Generation Platform",
+  "description": "B2B Lead Generator is a SaaS platform that helps businesses identify, qualify, and convert high-quality B2B leads using AI-powered automation and intelligent targeting.",
+  
+  "services": [
+    {
+      "name": "AI Lead Discovery",
+      "description": "Automatically discover and identify potential B2B leads matching your ideal customer profile using AI algorithms"
+    },
+    {
+      "name": "Lead Qualification",
+      "description": "Intelligent scoring and qualification system that ranks leads based on engagement, fit, and buying intent"
+    },
+    {
+      "name": "Automated Outreach",
+      "description": "Multi-channel outreach campaigns via email, LinkedIn, and phone with personalized messaging"
+    },
+    {
+      "name": "CRM Integration",
+      "description": "Seamless integration with Salesforce, HubSpot, Pipedrive, and other major CRM platforms"
+    },
+    {
+      "name": "Analytics Dashboard",
+      "description": "Real-time insights into lead performance, conversion rates, and ROI tracking"
+    }
+  ],
+  
+  "target_customers": [
+    {
+      "segment": "B2B SaaS Companies",
+      "description": "Software companies looking to scale their sales pipeline with qualified leads"
+    },
+    {
+      "segment": "Marketing Agencies",
+      "description": "Agencies managing lead generation campaigns for multiple clients"
+    },
+    {
+      "segment": "Enterprise Sales Teams",
+      "description": "Large organizations needing to automate and scale their outbound sales efforts"
+    },
+    {
+      "segment": "Startups",
+      "description": "Early-stage companies building their first sales pipeline"
+    }
+  ],
+  
+  "pricing": {
+    "starter": {
+      "name": "Starter Plan",
+      "price": "₹15,000/month",
+      "features": [
+        "Up to 500 leads per month",
+        "Basic lead scoring",
+        "Email outreach automation",
+        "CRM integration (1 platform)",
+        "Email support"
+      ],
+      "best_for": "Small teams and startups"
+    },
+    "professional": {
+      "name": "Professional Plan",
+      "price": "₹35,000/month",
+      "features": [
+        "Up to 2,000 leads per month",
+        "Advanced AI lead scoring",
+        "Multi-channel outreach (Email + LinkedIn)",
+        "CRM integration (unlimited)",
+        "Priority support",
+        "Custom workflows"
+      ],
+      "best_for": "Growing businesses"
+    },
+    "enterprise": {
+      "name": "Enterprise Plan",
+      "price": "Custom pricing",
+      "features": [
+        "Unlimited leads",
+        "Dedicated account manager",
+        "Custom AI model training",
+        "API access",
+        "White-label options",
+        "24/7 phone support",
+        "Advanced analytics"
+      ],
+      "best_for": "Large organizations"
+    }
+  },
+  
+  "faqs": [
+    {
+      "question": "What does B2B Lead Generator do?",
+      "answer": "B2B Lead Generator is an AI-powered platform that helps businesses discover, qualify, and convert high-quality B2B leads. We automate the entire lead generation process from discovery to outreach, saving you time and increasing conversion rates."
+    },
+    {
+      "question": "Do you have a free tier?",
+      "answer": "We offer a 14-day free trial with access to all Professional Plan features. No credit card required. After the trial, you can choose from our Starter, Professional, or Enterprise plans."
+    },
+    {
+      "question": "Who is this for?",
+      "answer": "B2B Lead Generator is perfect for B2B SaaS companies, marketing agencies, enterprise sales teams, and startups looking to scale their lead generation efforts. If you're selling to other businesses, we can help."
+    },
+    {
+      "question": "How does the AI lead scoring work?",
+      "answer": "Our AI analyzes over 50 data points including company size, industry, technology stack, engagement signals, and buying intent to score and rank leads. This ensures you focus on the most promising opportunities first."
+    },
+    {
+      "question": "What CRM platforms do you integrate with?",
+      "answer": "We integrate seamlessly with Salesforce, HubSpot, Pipedrive, Zoho CRM, and many others. Enterprise customers can also use our API for custom integrations."
+    },
+    {
+      "question": "How quickly can I see results?",
+      "answer": "Most customers start seeing qualified leads within 48 hours of setup. Full campaign optimization typically takes 2-3 weeks as our AI learns your ideal customer profile."
+    },
+    {
+      "question": "What kind of support do you provide?",
+      "answer": "Starter plan includes email support with 24-hour response time. Professional plan gets priority support. Enterprise customers receive a dedicated account manager and 24/7 phone support."
+    },
+    {
+      "question": "Can I cancel anytime?",
+      "answer": "Yes, all plans are month-to-month with no long-term contracts. You can cancel anytime from your dashboard. Enterprise plans may have custom terms."
+    },
+    {
+      "question": "How is pricing calculated?",
+      "answer": "Pricing is based on the number of leads per month and features you need. Starter is ₹15,000/month for up to 500 leads, Professional is ₹35,000/month for up to 2,000 leads, and Enterprise has custom pricing for unlimited leads."
+    },
+    {
+      "question": "Do you provide training?",
+      "answer": "Yes! All plans include onboarding training. Professional and Enterprise plans get personalized training sessions and ongoing support to maximize your ROI."
+    }
+  ]
+}

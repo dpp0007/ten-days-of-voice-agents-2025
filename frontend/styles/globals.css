@@ -6,26 +6,20 @@
 :root {
   --radius: 0.625rem;
   
-  /* Blue Tokai Brand Colors - Claymorphism Theme */
-  --sky-blue: #d2ecf3;
-  --cream-white: #fffaf0;
-  --bright-cyan: #8ce1f9;
-  --dark-text: #2c3e50;
+  /* B2B Lead Generator Brand Colors */
+  --primary-orange: #f58634;
+  --primary-white: #ffffff;
+  --primary-black: #000000;
+  --dark-text: #1a1a1a;
   --soft-gray: #6b7280;
-  
-  /* Claymorphism + Glassmorphism */
-  --clay-shadow-light: 8px 8px 16px rgba(140, 225, 249, 0.15);
-  --clay-shadow-dark: -8px -8px 16px rgba(255, 255, 255, 0.7);
-  --clay-inset-light: inset 4px 4px 8px rgba(140, 225, 249, 0.1);
-  --clay-inset-dark: inset -4px -4px 8px rgba(255, 255, 255, 0.5);
-  --glass-bg: rgba(255, 250, 240, 0.7);
-  --glass-border: rgba(140, 225, 249, 0.25);
+  --light-bg: #fafafa;
   
   /* Theme mappings */
-  --background: var(--cream-white);
+  --background: var(--primary-white);
   --foreground: var(--dark-text);
-  --primary: var(--bright-cyan);
-  --secondary: var(--sky-blue);
+  --primary: var(--primary-orange);
+  --secondary: var(--light-bg);
+  --accent: var(--primary-orange);
 }
 
 .dark {
@@ -167,6 +161,27 @@
     }
     100% {
       background-position: 250% 0;
+    }
+  }
+
+  /* Loader Animation */
+  .loader {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #f58634;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+  }
+
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
     }
   }
 }

@@ -26,8 +26,11 @@ export function App({ appConfig }: AppProps) {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-gradient-to-b from-[#12B1C5] via-[#8FE4F9] to-[#FFF9EF]">
-        <CoffeeLoader />
+      <div className="flex h-screen w-screen items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="loader mb-4 mx-auto"></div>
+          <p className="text-lg text-gray-700">Initializing B2B Lead Agent…</p>
+        </div>
       </div>
     );
   }

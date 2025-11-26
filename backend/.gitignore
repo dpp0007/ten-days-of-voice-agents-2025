@@ -10,3 +10,13 @@ KMS
 *.egg-info
 .pytest_cache
 .ruff_cache
+
+# Generated data - keep directories but ignore contents
+leads/*.json
+leads/*.html
+!leads/.gitkeep
+meetings/*.json
+meetings/*.html
+!meetings/.gitkeep
+orders/*.json
+orders/*.html
