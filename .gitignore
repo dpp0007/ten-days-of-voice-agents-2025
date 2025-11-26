@@ -36,36 +36,9 @@ yarn-error.log*
 *~
 .DS_Store
 
-# Generated data
-backend/leads/*.json
-backend/leads/*.html
-!backend/leads/.gitkeep
-backend/meetings/*.json
-backend/meetings/*.html
-!backend/meetings/.gitkeep
-backend/orders/
 
-# Documentation (keep only README)
-Documnetation.txt
-*_GUIDE.md
-*_SETUP.md
-*_CHECKLIST.md
-*_SUMMARY.md
-*_ARCHITECTURE.md
-*_REFERENCE.md
-START_HERE.md
-RUN_NOW.md
-PHONE_ACCESS_GUIDE.md
-CODE_CHANGES.md
-GITHUB_CHECKLIST.md
-UPGRADE_SUMMARY.md
-QUICK_START.md
-NGROK_SETUP.md
-SYSTEM_ARCHITECTURE.md
-COMPLETION_CHECKLIST.md
-QUICK_REFERENCE.md
-README_GITHUB.md
-DUPLICATE_LEAD_FIX.md
+
+
 
 # Misc
 *.bak

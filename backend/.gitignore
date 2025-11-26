@@ -11,12 +11,8 @@ KMS
 .pytest_cache
 .ruff_cache
 
-# Generated data - keep directories but ignore contents
-leads/*.json
+# Generated data - Allow JSON for demo, ignore HTML only
 leads/*.html
-!leads/.gitkeep
-meetings/*.json
 meetings/*.html
-!meetings/.gitkeep
 orders/*.json
 orders/*.html

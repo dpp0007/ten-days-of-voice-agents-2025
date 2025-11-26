@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Sam",
+    "company": "Ventec Solution",
+    "email": "",
+    "role": "Runs the company",
+    "use_case": "Outbound leads for SaaS product",
+    "team_size": "30 members",
+    "timeline": "soon",
+    "lead_id": "LEAD-20251126-DP8A",
+    "timestamp": "2025-11-26T19:02:46.529716"
+  },
+  {
+    "name": "Sam",
+    "company": "",
+    "email": "sam@directgentechsolution.com",
+    "role": "",
+    "use_case": "",
+    "team_size": "",
+    "timeline": "",
+    "lead_id": "LEAD-20251126-YQFL",
+    "timestamp": "2025-11-26T19:04:06.267234"
+  }
+]

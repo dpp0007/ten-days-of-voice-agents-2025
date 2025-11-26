@@ -1,0 +1,12 @@
+{
+  "meeting_id": "MTG-20251126-SBRC",
+  "name": "Sam",
+  "email": "sam@ventec.com",
+  "company": "Ventec Solutions",
+  "role": "CEO/Owner",
+  "slot_id": "slot_1",
+  "meeting_time": "2025-11-27T10:00:00",
+  "meeting_display": "Tomorrow at 10:00 AM",
+  "booked_at": "2025-11-26T18:50:01.724831",
+  "status": "confirmed"
+}
