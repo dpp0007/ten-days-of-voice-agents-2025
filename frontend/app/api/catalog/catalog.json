@@ -1,0 +1,183 @@
+{
+  "categories": {
+    "dairy": {
+      "name": "Dairy & Milk",
+      "items": [
+        {
+          "id": "milk-amul-500",
+          "name": "Amul Cow Milk",
+          "price": 30,
+          "unit": "500 ml",
+          "brand": "Amul",
+          "image": "/products/milk.png",
+          "tags": ["dairy", "milk"]
+        },
+        {
+          "id": "milk-mother-500",
+          "name": "Mother Dairy Cow Milk",
+          "price": 30,
+          "unit": "500 ml",
+          "brand": "Mother Dairy",
+          "image": "/products/milk.png",
+          "tags": ["dairy", "milk"]
+        },
+        {
+          "id": "butter-amul-100",
+          "name": "Amul Butter",
+          "price": 60,
+          "unit": "100 g",
+          "brand": "Amul",
+          "image": "/products/butter.png",
+          "tags": ["dairy", "butter"]
+        },
+        {
+          "id": "cheese-amul-200",
+          "name": "Amul Cheese Slices",
+          "price": 120,
+          "unit": "200 g",
+          "brand": "Amul",
+          "image": "/products/cheese.png",
+          "tags": ["dairy", "cheese"]
+        }
+      ]
+    },
+    "bakery": {
+      "name": "Bakery & Bread",
+      "items": [
+        {
+          "id": "bread-britannia-400",
+          "name": "Britannia Bread",
+          "price": 35,
+          "unit": "400 g",
+          "brand": "Britannia",
+          "image": "/products/bread.png",
+          "tags": ["bakery", "bread"]
+        },
+        {
+          "id": "bread-modern-400",
+          "name": "Modern Whole Wheat Bread",
+          "price": 40,
+          "unit": "400 g",
+          "brand": "Modern",
+          "image": "/products/bread.png",
+          "tags": ["bakery", "bread", "whole-wheat"]
+        }
+      ]
+    },
+    "vegetables": {
+      "name": "Fresh Vegetables",
+      "items": [
+        {
+          "id": "tomato-500",
+          "name": "Tomato",
+          "price": 25,
+          "unit": "500 g",
+          "brand": "Fresh",
+          "image": "/products/tomato.png",
+          "tags": ["vegetable", "fresh"]
+        },
+        {
+          "id": "onion-500",
+          "name": "Onion",
+          "price": 20,
+          "unit": "500 g",
+          "brand": "Fresh",
+          "image": "/products/onion.png",
+          "tags": ["vegetable", "fresh"]
+        },
+        {
+          "id": "potato-1kg",
+          "name": "Potato",
+          "price": 30,
+          "unit": "1 kg",
+          "brand": "Fresh",
+          "image": "/products/potato.png",
+          "tags": ["vegetable", "fresh"]
+        }
+      ]
+    },
+    "staples": {
+      "name": "Staples",
+      "items": [
+        {
+          "id": "rice-india-gate-1kg",
+          "name": "India Gate Basmati Rice",
+          "price": 150,
+          "unit": "1 kg",
+          "brand": "India Gate",
+          "image": "/products/rice.png",
+          "tags": ["staples", "rice"]
+        },
+        {
+          "id": "pasta-maggi-500",
+          "name": "Maggi Pasta",
+          "price": 80,
+          "unit": "500 g",
+          "brand": "Maggi",
+          "image": "/products/pasta.png",
+          "tags": ["staples", "pasta"]
+        },
+        {
+          "id": "oil-fortune-1l",
+          "name": "Fortune Sunflower Oil",
+          "price": 180,
+          "unit": "1 L",
+          "brand": "Fortune",
+          "image": "/products/oil.png",
+          "tags": ["staples", "oil"]
+        }
+      ]
+    },
+    "eggs": {
+      "name": "Eggs & Meat",
+      "items": [
+        {
+          "id": "eggs-6",
+          "name": "Farm Fresh Eggs",
+          "price": 45,
+          "unit": "6 pieces",
+          "brand": "Farm Fresh",
+          "image": "/products/eggs.png",
+          "tags": ["eggs", "protein"]
+        }
+      ]
+    },
+    "snacks": {
+      "name": "Snacks",
+      "items": [
+        {
+          "id": "chips-lays-50",
+          "name": "Lays Classic Chips",
+          "price": 20,
+          "unit": "50 g",
+          "brand": "Lays",
+          "image": "/products/chips.png",
+          "tags": ["snacks", "chips"]
+        },
+        {
+          "id": "biscuit-parle-200",
+          "name": "Parle-G Biscuits",
+          "price": 25,
+          "unit": "200 g",
+          "brand": "Parle",
+          "image": "/products/biscuits.png",
+          "tags": ["snacks", "biscuits"]
+        }
+      ]
+    },
+    "beverages": {
+      "name": "Beverages",
+      "items": [
+        {
+          "id": "juice-real-1l",
+          "name": "Real Mango Juice",
+          "price": 120,
+          "unit": "1 L",
+          "brand": "Real",
+          "image": "/products/juice.png",
+          "tags": ["beverages", "juice"]
+        }
+      ]
+    }
+  }
+}

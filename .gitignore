@@ -1,0 +1,61 @@
+# Environment files with secrets
+.env.local
+.env
+*.env.local
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+
+# Node
+node_modules/
+.next/
+out/
+.pnpm-store/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Orders (optional - remove if you want to track orders)
+backend/src/orders/*.json
+!backend/src/orders/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# OS
+Thumbs.db
+.DS_Store

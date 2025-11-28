@@ -12,11 +12,12 @@ from livekit.agents import (
     cli,
     metrics,
     tokenize,
-    # function_tool,
-    # RunContext
+    function_tool,
+    RunContext
 )
 from livekit.plugins import murf, silero, google, deepgram, noise_cancellation
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
+from cart_manager import CartManager
 
 logger = logging.getLogger("agent")
 
@@ -26,28 +27,107 @@ load_dotenv(".env.local")
 class Assistant(Agent):
     def __init__(self) -> None:
         super().__init__(
-            instructions="""You are a helpful voice AI assistant. The user is interacting with you via voice, even if you perceive the conversation as text.
-            You eagerly assist users with their questions by providing information from your extensive knowledge.
-            Your responses are concise, to the point, and without any complex formatting including emojis, asterisks, or other weird symbols.
-            You are curious, friendly, and have a sense of humor.""",
+            instructions="""You are a friendly food and grocery ordering assistant for QuickMart. The user is interacting with you via voice.
+            
+            Your role:
+            - Help users order groceries and food items
+            - Add, remove, or update items in their cart
+            - Handle recipe-based requests like "ingredients for pasta" or "what I need for a sandwich"
+            - Confirm every cart action verbally
+            - Ask for quantity if not specified (default to 1)
+            - Show cart contents when asked
+            - Place orders when user says they're done
+            
+            Be conversational, friendly, and efficient. Keep responses concise without emojis or special formatting.
+            Always confirm what you've added or changed in the cart.""",
         )
+        self.cart_manager = CartManager()
 
-    # To add tools, use the @function_tool decorator.
-    # Here's an example that adds a simple weather tool.
-    # You also have to add `from livekit.agents import function_tool, RunContext` to the top of this file
-    # @function_tool
-    # async def lookup_weather(self, context: RunContext, location: str):
-    #     """Use this tool to look up current weather information in the given location.
-    #
-    #     If the location is not supported by the weather service, the tool will indicate this. You must tell the user the location's weather is unavailable.
-    #
-    #     Args:
-    #         location: The location to look up weather information for (e.g. city name)
-    #     """
-    #
-    #     logger.info(f"Looking up weather for {location}")
-    #
-    #     return "sunny with a temperature of 70 degrees."
+    @function_tool
+    async def add_item_to_cart(self, context: RunContext, item_name: str, quantity: int = 1):
+        """Add an item to the shopping cart.
+        
+        Args:
+            item_name: Name of the item to add (e.g., "milk", "bread", "eggs")
+            quantity: Number of items to add (default: 1)
+        """
+        logger.info(f"Adding {quantity} x {item_name} to cart")
+        result = self.cart_manager.add_to_cart(item_name, quantity)
+        return result["message"]
+
+    @function_tool
+    async def remove_item_from_cart(self, context: RunContext, item_name: str):
+        """Remove an item completely from the shopping cart.
+        
+        Args:
+            item_name: Name of the item to remove
+        """
+        logger.info(f"Removing {item_name} from cart")
+        result = self.cart_manager.remove_from_cart(item_name)
+        return result["message"]
+
+    @function_tool
+    async def update_item_quantity(self, context: RunContext, item_name: str, quantity: int):
+        """Update the quantity of an item in the cart.
+        
+        Args:
+            item_name: Name of the item to update
+            quantity: New quantity (use 0 to remove)
+        """
+        logger.info(f"Updating {item_name} quantity to {quantity}")
+        result = self.cart_manager.update_quantity(item_name, quantity)
+        return result["message"]
+
+    @function_tool
+    async def add_recipe_ingredients(self, context: RunContext, recipe_name: str):
+        """Add all ingredients needed for a recipe or dish.
+        
+        Use this when user asks for "ingredients for X" or "what I need for X".
+        
+        Args:
+            recipe_name: Name of the recipe (e.g., "pasta", "sandwich", "omelette", "breakfast")
+        """
+        logger.info(f"Adding ingredients for {recipe_name}")
+        result = self.cart_manager.add_recipe_items(recipe_name)
+        return result["message"]
+
+    @function_tool
+    async def show_cart(self, context: RunContext):
+        """Show all items currently in the shopping cart with total price.
+        
+        Use this when user asks "what's in my cart" or "show my cart".
+        """
+        logger.info("Showing cart contents")
+        cart_data = self.cart_manager.get_cart()
+        
+        if not cart_data["items"]:
+            return cart_data["message"]
+        
+        items_list = []
+        for item in cart_data["items"]:
+            items_list.append(f"{item['quantity']} x {item['name']} at ₹{item['price']} each")
+        
+        items_str = ", ".join(items_list)
+        return f"Your cart has: {items_str}. Total: ₹{cart_data['total']}"
+
+    @function_tool
+    async def place_order(self, context: RunContext, customer_name: str = "Guest"):
+        """Place the order and save it. Use this when user says they're done or wants to place the order.
+        
+        Args:
+            customer_name: Customer's name (default: "Guest")
+        """
+        logger.info(f"Placing order for {customer_name}")
+        result = self.cart_manager.place_order(customer_name)
+        return result["message"]
+
+    @function_tool
+    async def clear_cart(self, context: RunContext):
+        """Clear all items from the cart. Use this if user wants to start over.
+        """
+        logger.info("Clearing cart")
+        result = self.cart_manager.clear_cart()
+        return result["message"]
 
 
 def prewarm(proc: JobProcess):
@@ -133,6 +213,9 @@ async def entrypoint(ctx: JobContext):
 
     # Join the room and connect to the user
     await ctx.connect()
+    
+    # Send automatic greeting when agent joins
+    await session.say("Hello! Welcome to QuickMart. I'm your voice shopping assistant. I can help you add items to your cart, suggest ingredients for recipes, or place your order. How can I help you today?")
 
 
 if __name__ == "__main__":
