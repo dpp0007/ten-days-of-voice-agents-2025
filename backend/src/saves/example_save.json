@@ -1,0 +1,64 @@
+{
+  "player": {
+    "name": "Unknown",
+    "class": "Marked One",
+    "hp": 18,
+    "max_hp": 20,
+    "status": "Injured",
+    "attributes": {
+      "strength": 12,
+      "intelligence": 12,
+      "luck": 12
+    },
+    "inventory": [
+      "ancient key",
+      "healing potion",
+      "mysterious scroll"
+    ]
+  },
+  "location": {
+    "name": "Storm Temple Ruins",
+    "description": "Crumbling pillars surround you, lightning flashes in the distance",
+    "visited": true
+  },
+  "npcs": {
+    "Kael": {
+      "role": "mysterious wanderer",
+      "attitude": "friendly",
+      "alive": true
+    },
+    "Shadow Guardian": {
+      "role": "temple protector",
+      "attitude": "hostile",
+      "alive": false
+    }
+  },
+  "events": [
+    {
+      "turn": 3,
+      "description": "Awakened in the broken sky-temple"
+    },
+    {
+      "turn": 5,
+      "description": "Discovered the hidden passage beneath the altar"
+    },
+    {
+      "turn": 8,
+      "description": "Defeated the Shadow Guardian"
+    },
+    {
+      "turn": 12,
+      "description": "Met Kael, the wanderer who knows about the mark"
+    }
+  ],
+  "quests": {
+    "active": [
+      "Find the source of the glowing mark",
+      "Reach the city of Aetherfall"
+    ],
+    "completed": [
+      "Escape the broken temple"
+    ]
+  },
+  "turn_count": 15
+}

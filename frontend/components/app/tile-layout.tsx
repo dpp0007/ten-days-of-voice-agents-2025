@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Track } from 'livekit-client';
 import { AnimatePresence, motion } from 'motion/react';
 import {
+  AudioTrack,
   BarVisualizer,
   type TrackReference,
   VideoTrack,
@@ -93,6 +94,9 @@ export function TileLayout({ chatOpen }: TileLayoutProps) {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-8 bottom-32 z-50 md:top-12 md:bottom-40">
+      {/* Hidden audio element to play agent's voice */}
+      {agentAudioTrack && <AudioTrack trackRef={agentAudioTrack} />}
+      
       <div className="relative mx-auto h-full max-w-2xl px-4 md:px-0">
         <div className={cn(classNames.grid)}>
           {/* Agent */}
@@ -123,8 +127,8 @@ export function TileLayout({ chatOpen }: TileLayoutProps) {
                     delay: animationDelay,
                   }}
                   className={cn(
-                    'bg-background aspect-square h-[90px] rounded-md border border-transparent transition-[border,drop-shadow]',
-                    chatOpen && 'border-input/50 drop-shadow-lg/10 delay-200'
+                    'bg-gradient-to-br from-amber-900/80 to-orange-900/80 backdrop-blur-sm aspect-square h-[90px] rounded-md border-2 border-amber-600/50 shadow-2xl shadow-amber-600/20 transition-[border,drop-shadow]',
+                    chatOpen && 'border-amber-500/70 drop-shadow-lg delay-200'
                   )}
                 >
                   <BarVisualizer
@@ -136,9 +140,10 @@ export function TileLayout({ chatOpen }: TileLayoutProps) {
                   >
                     <span
                       className={cn([
-                        'bg-muted min-h-2.5 w-2.5 rounded-full',
+                        'bg-amber-700/50 min-h-2.5 w-2.5 rounded-full',
                         'origin-center transition-colors duration-250 ease-linear',
-                        'data-[lk-highlighted=true]:bg-foreground data-[lk-muted=true]:bg-muted',
+                        'data-[lk-highlighted=true]:bg-amber-400 data-[lk-highlighted=true]:shadow-lg data-[lk-highlighted=true]:shadow-amber-400/50',
+                        'data-[lk-muted=true]:bg-amber-900/30',
                       ])}
                     />
                   </BarVisualizer>

@@ -1,48 +1,60 @@
-# 🛒 QuickMart Voice Shopping Assistant - Day 7
+# ⚡ Aetherfall - Voice-Powered D&D Adventure
 
-A complete voice-controlled grocery ordering system built with LiveKit Agents and Murf Falcon TTS. Shop by voice or text with an intelligent assistant that understands recipes, manages your cart, and places orders.
+An immersive voice-controlled D&D-style adventure game built with LiveKit Agents and Murf Falcon TTS. Explore a floating sky city, make choices that matter, and experience an epic story guided by an AI Game Master.
 
-![Day 7 - Food & Grocery Ordering Voice Agent](https://img.shields.io/badge/Day-7-green) ![Status](https://img.shields.io/badge/Status-Complete-success) ![LiveKit](https://img.shields.io/badge/LiveKit-Agents-blue) ![Murf](https://img.shields.io/badge/Murf-Falcon%20TTS-orange)
+![Day 8 - Voice Game Master](https://img.shields.io/badge/Day-8-purple) ![Status](https://img.shields.io/badge/Status-Complete-success) ![LiveKit](https://img.shields.io/badge/LiveKit-Agents-blue) ![Murf](https://img.shields.io/badge/Murf-Falcon%20TTS-orange)
 
 ## ✨ Features
 
-### 🎤 Voice & Chat Interface
-- **Dual Input**: Speak OR type your orders
-- **Auto-greeting**: Agent welcomes you when you connect
-- **Real-time feedback**: Visual indicators for listening/speaking states
-- **Conversation history**: See all your interactions
+### 🎭 Voice-Powered Gameplay
+- **Speak Your Actions**: Control your character entirely by voice
+- **AI Game Master**: Intelligent narrator that responds to your choices
+- **Cinematic Narration**: Immersive storytelling with dramatic pauses
+- **Real-time Feedback**: Visual indicators for GM speaking/listening states
 
-### 🛍️ Smart Shopping
-- **18 Products** across 7 categories (Dairy, Bakery, Vegetables, Staples, Eggs, Snacks, Beverages)
-- **Recipe Intelligence**: Say "ingredients for pasta" and get all items automatically
-- **6 Pre-configured Recipes**: Pasta, Sandwich, Omelette, Fried Rice, Breakfast, and more
-- **Cart Management**: Add, remove, update quantities with voice or UI
+### 🎲 D&D-Style Mechanics
+- **Character System**: HP, Strength, Intelligence, Luck attributes
+- **Dice Rolling**: d20 rolls for skill checks and risky actions
+- **Inventory Management**: Collect and use items throughout your journey
+- **Quest Tracking**: Active and completed quests
+- **NPC Interactions**: Meet characters with persistent relationships
+- **Location Tracking**: Explore different areas of Aetherfall
 
-### 🎨 Blinkit-Style UI
-- Modern, responsive product grid
-- Real-time cart updates
-- Quantity controls (+/-)
-- Order confirmation screen
-- Floating voice button
+### 🌌 Epic Story World
+- **Aetherfall**: A floating city above an endless storm
+- **The Abyss**: Violent world of lightning and ancient machines below
+- **Broken Sky-Temple**: Your mysterious starting location
+- **Glowing Mark**: A mystical symbol on your arm that reacts to the world
+- **Story Progression**: Awakening → Discovery → Threat → Choice → Outcome
+
+### 🎨 Modern Game UI
+- **Dark Fantasy Theme**: Immersive amber/purple gradient design
+- **Animated Temple**: Floating temple with lightning effects on welcome screen
+- **Story Panel**: Large, readable GM narration
+- **Chat Transcript**: Full conversation history
+- **Character Sheet**: Real-time stats, HP, inventory, and quests
+- **Mobile Responsive**: Optimized for desktop and mobile devices
 
 ### 🔧 Technical Features
-- **Murf Falcon TTS**: Fastest text-to-speech for instant responses
+- **Murf Falcon TTS**: Natural voice for the Game Master
 - **Deepgram STT**: Accurate speech recognition
-- **Google Gemini LLM**: Intelligent conversation handling
-- **7 Function Tools**: Complete cart operations
-- **JSON Order Storage**: Persistent order history
+- **Google Gemini 2.5 Flash**: Intelligent story generation
+- **14 Function Tools**: Complete game mechanics
+- **Auto-Save System**: Progress saved every 5 minutes + on disconnect
+- **JSON Save Files**: Persistent game state
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.9+ with [uv](https://docs.astral.sh/uv/)
-- Node.js 18+ with pnpm
-- LiveKit Cloud account (or local server)
+- Node.js 18+ with npm/pnpm
+- LiveKit Cloud account ([Get free account](https://cloud.livekit.io/))
+- API Keys: [Google AI](https://aistudio.google.com/), [Murf](https://murf.ai/), [Deepgram](https://deepgram.com/)
 
-### 1. Clone & Install
+### 1. Clone Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/yourusername/aetherfall-voice-game.git
 cd ten-days-of-voice-agents-2025
 ```
 
@@ -58,7 +70,7 @@ uv sync
 cp .env.example .env.local
 ```
 
-Edit `backend/.env.local`:
+Edit `backend/.env.local` with your API keys:
 ```env
 LIVEKIT_URL=wss://your-project.livekit.cloud
 LIVEKIT_API_KEY=your_api_key
@@ -69,11 +81,8 @@ DEEPGRAM_API_KEY=your_deepgram_api_key
 ```
 
 ```bash
-# Download models (first time only)
-uv run python src/agent.py download-files
-
-# Start backend
-uv run python src/agent.py dev
+# Start the Game Master agent
+python -m livekit.agents.cli dev
 ```
 
 ### 3. Frontend Setup
@@ -82,6 +91,8 @@ uv run python src/agent.py dev
 cd frontend
 
 # Install dependencies
+npm install
+# or
 pnpm install
 
 # Configure environment
@@ -96,63 +107,90 @@ LIVEKIT_API_SECRET=your_api_secret
 ```
 
 ```bash
-# Start frontend
+# Start the web app
+npm run dev
+# or
 pnpm dev
 ```
 
-### 4. Open & Shop!
+### 4. Begin Your Adventure!
 
-Open http://localhost:3000 in your browser and start shopping!
+Open http://localhost:3000 in your browser and click "Begin Adventure" ⚡
 
-## 🎤 Voice Commands
+## 🎤 How to Play
 
-### Basic Shopping
+### Speaking to the Game Master
+
+Simply speak your actions naturally:
+
+**Exploration:**
 ```
-"Add milk"
-"Add 2 bread"
-"Remove eggs"
-"Update milk quantity to 3"
-```
-
-### Recipe-Based
-```
-"I need ingredients for pasta"
-"Get me what I need for a sandwich"
-"Ingredients for omelette"
+"I look around"
+"I examine the glowing mark on my arm"
+"I walk towards the broken pillar"
+"I search for a way down"
 ```
 
-### Cart & Checkout
+**Interaction:**
 ```
-"What's in my cart?"
-"Show my cart"
-"Place my order"
-"Clear my cart"
+"I talk to the stranger"
+"I ask about the storm"
+"I try to open the door"
+"I pick up the ancient key"
 ```
 
-## 📦 Product Catalog
+**Combat & Actions:**
+```
+"I attack the creature"
+"I try to dodge"
+"I cast a spell"
+"I run away"
+```
 
-| Category | Items | Price Range |
-|----------|-------|-------------|
-| **Dairy & Milk** | Milk, Butter, Cheese | ₹30-120 |
-| **Bakery** | Bread (2 types) | ₹35-40 |
-| **Vegetables** | Tomato, Onion, Potato | ₹20-30 |
-| **Staples** | Rice, Pasta, Oil | ₹80-180 |
-| **Eggs** | Farm Fresh Eggs | ₹45 |
-| **Snacks** | Chips, Biscuits | ₹20-25 |
-| **Beverages** | Mango Juice | ₹120 |
+### Game Commands
 
-**Total**: 18 products
+**Character Info:**
+```
+"Show my character sheet"
+"What's in my inventory?"
+"Check my HP"
+"What are my stats?"
+```
 
-## 🍳 Available Recipes
+**Game Management:**
+```
+"Save my game"
+"Load my game"
+"Start over"
+```
 
-| Recipe | Ingredients Added |
-|--------|-------------------|
-| **Pasta** | Pasta, Tomato, Cheese, Oil |
-| **Sandwich** | Bread, Butter, Cheese |
-| **Peanut Butter Sandwich** | Bread, Butter |
-| **Omelette** | Eggs, Butter, Onion, Tomato |
-| **Fried Rice** | Rice, Oil, Onion, Eggs |
-| **Breakfast** | Bread, Butter, Eggs, Milk |
+## 🎲 Game Mechanics
+
+### Character Attributes
+- **Strength (STR)**: Physical power and combat ability
+- **Intelligence (INT)**: Problem-solving and magic
+- **Luck (LCK)**: Fortune and chance outcomes
+
+### Dice System
+- **d20 Rolls**: Standard skill checks
+- **Modifiers**: Based on your attributes
+- **Difficulty Classes**: 10 (normal), 15 (hard), 20 (very hard)
+- **Critical Success**: Natural 20
+- **Critical Failure**: Natural 1
+
+### Health System
+- **Starting HP**: 20/20
+- **Status Effects**: Healthy, Injured, Critical, Dead
+- **Healing**: Find potions or rest
+- **Damage**: Combat, traps, environmental hazards
+
+### Progression
+Your choices shape the story through 5 stages:
+1. **Awakening** - Discover who you are
+2. **Discovery** - Learn about the world
+3. **Threat** - Face danger
+4. **Choice** - Make critical decisions
+5. **Outcome** - Experience consequences
 
 ## 📁 Project Structure
 
@@ -160,19 +198,24 @@ Open http://localhost:3000 in your browser and start shopping!
 ten-days-of-voice-agents-2025/
 ├── backend/
 │   └── src/
-│       ├── agent.py              # Voice agent with 7 tools
-│       ├── cart_manager.py       # Cart & order logic
-│       ├── catalog.json          # Product catalog
-│       ├── recipes.json          # Recipe mappings
-│       └── orders/               # Saved orders
+│       ├── agent.py              # Game Master AI with 14 tools
+│       ├── game_master.py        # Game state & mechanics
+│       └── saves/                # Auto-saved game progress
+│           ├── autosave.json     # Auto-save (every 5 min)
+│           └── manual_save.json  # Manual saves
 │
 ├── frontend/
-│   ├── components/
-│   │   ├── grocery-store.tsx     # Main shopping UI
-│   │   └── grocery-voice-app.tsx # Voice integration
-│   └── app/
-│       ├── api/catalog/          # Catalog API
-│       └── (app)/page.tsx        # Main page
+│   ├── components/app/
+│   │   ├── session-view.tsx      # Main game UI
+│   │   ├── welcome-view.tsx      # Landing page
+│   │   ├── character-sheet.tsx   # Character stats
+│   │   ├── chat-transcript.tsx   # Conversation history
+│   │   └── tile-layout.tsx       # Audio visualization
+│   ├── hooks/
+│   │   ├── useChatMessages.ts    # Message handling
+│   │   └── useRoom.ts            # LiveKit connection
+│   └── styles/
+│       └── globals.css           # Dark fantasy theme
 │
 └── README.md                     # This file
 ```

@@ -159,3 +159,51 @@
     }
   }
 }
+
+/* Fantasy Game Theme Enhancements */
+@layer base {
+  body {
+    background: linear-gradient(135deg, oklch(0.145 0.02 30) 0%, oklch(0.12 0.01 270) 100%);
+  }
+  
+  .dark body {
+    background: linear-gradient(135deg, oklch(0.08 0.02 30) 0%, oklch(0.05 0.01 270) 100%);
+  }
+}
+
+@layer utils {
+  .fantasy-glow {
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  }
+  
+  .dice-roll {
+    animation: dice-spin 0.5s ease-in-out;
+  }
+  
+  @keyframes dice-spin {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  
+  .hp-bar {
+    transition: width 0.5s ease-in-out;
+  }
+
+  /* Floating animation for temple */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+  }
+
+  /* Lightning flash animation */
+  @keyframes flash {
+    0%, 90%, 100% { opacity: 0; }
+    92%, 94% { opacity: 1; }
+  }
+
+  /* Radial gradient utility */
+  .bg-gradient-radial {
+    background: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+}

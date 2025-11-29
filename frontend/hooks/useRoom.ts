@@ -5,7 +5,11 @@ import { toastAlert } from '@/components/livekit/alert-toast';
 
 export function useRoom(appConfig: AppConfig) {
   const aborted = useRef(false);
-  const room = useMemo(() => new Room(), []);
+  const room = useMemo(() => new Room({
+    // Enable transcription reception
+    adaptiveStream: true,
+    dynacast: true,
+  }), []);
   const [isSessionActive, setIsSessionActive] = useState(false);
 
   useEffect(() => {

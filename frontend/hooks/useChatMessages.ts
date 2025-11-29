@@ -28,6 +28,9 @@ export function useChatMessages() {
   const transcriptions: TextStreamData[] = useTranscriptions();
 
   const mergedTranscriptions = useMemo(() => {
+    console.log('[useChatMessages] Transcriptions:', transcriptions.length);
+    console.log('[useChatMessages] Chat messages:', chat.chatMessages.length);
+    
     const merged: Array<ReceivedChatMessage> = [
       ...transcriptions.map((transcription) => transcriptionToChatMessage(transcription, room)),
       ...chat.chatMessages,

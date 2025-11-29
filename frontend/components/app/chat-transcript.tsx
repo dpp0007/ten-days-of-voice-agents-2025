@@ -58,6 +58,14 @@ export function ChatTranscript({
   messages = [],
   ...props
 }: ChatTranscriptProps & Omit<HTMLMotionProps<'div'>, 'ref'>) {
+  if (messages.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-500 text-sm italic">
+        No messages yet...
+      </div>
+    );
+  }
+
   return (
     <AnimatePresence>
       {!hidden && (

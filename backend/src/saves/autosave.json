@@ -1,0 +1,40 @@
+{
+  "player": {
+    "name": "Unknown",
+    "class": "Marked One",
+    "hp": 20,
+    "max_hp": 20,
+    "status": "Stable",
+    "attributes": {
+      "strength": 12,
+      "intelligence": 12,
+      "luck": 12
+    },
+    "inventory": [
+      "Obsidian Sphere"
+    ]
+  },
+  "location": {
+    "name": "Shattered Pillar Terrace",
+    "description": "A platform of cold marble, surrounded by broken pillars, overlooking the endless storm and floating islands.",
+    "visited": true
+  },
+  "npcs": {},
+  "events": [
+    {
+      "turn": 0,
+      "description": "Player focused on the glowing mark on their arm."
+    },
+    {
+      "turn": 0,
+      "description": "Player searches immediate surroundings."
+    }
+  ],
+  "quests": {
+    "active": [
+      "Discover the meaning of the glowing mark"
+    ],
+    "completed": []
+  },
+  "turn_count": 0
+}

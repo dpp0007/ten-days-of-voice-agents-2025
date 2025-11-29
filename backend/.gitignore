@@ -1,12 +1,22 @@
+# Environment files (keep these secret!)
 .env
 .env.*
 !.env.example
-.DS_Store
+
+# Python
 __pycache__
-.idea
-KMS
-.venv
-.vscode
 *.egg-info
 .pytest_cache
 .ruff_cache
+.venv
+
+# IDE
+.DS_Store
+.idea
+.vscode
+
+# Sensitive
+KMS
+
+# Keep save files visible for demo
+# src/saves/*.json files will be committed
