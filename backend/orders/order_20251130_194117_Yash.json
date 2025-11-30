@@ -1,0 +1,18 @@
+{
+  "order_id": "ORD-20251130_194117",
+  "customer_name": "Yash",
+  "items": [
+    {
+      "product_id": "prod_002",
+      "name": "Smart Watch Pro",
+      "unit_price": 399.99,
+      "quantity": 1,
+      "color": "black",
+      "size": "medium",
+      "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop"
+    }
+  ],
+  "total": 399.99,
+  "timestamp": "2025-11-30T19:41:17.649588",
+  "status": "confirmed"
+}

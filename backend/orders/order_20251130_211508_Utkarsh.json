@@ -1,0 +1,18 @@
+{
+  "order_id": "ORD-20251130_211508",
+  "customer_name": "Utkarsh",
+  "items": [
+    {
+      "product_id": "prod_001",
+      "name": "Premium Wireless Headphones",
+      "unit_price": 299.99,
+      "quantity": 1,
+      "color": "Black",
+      "size": "N/A",
+      "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop"
+    }
+  ],
+  "total": 299.99,
+  "timestamp": "2025-11-30T21:15:08.017560",
+  "status": "confirmed"
+}

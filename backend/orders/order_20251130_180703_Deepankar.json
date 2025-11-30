@@ -1,0 +1,33 @@
+{
+  "order_id": "ORD-20251130_180703",
+  "customer_name": "Deepankar",
+  "items": [
+    {
+      "product_id": "prod_005",
+      "name": "Running Shoes",
+      "price": 129.99,
+      "quantity": 1,
+      "color": "Red/Black",
+      "size": "9"
+    },
+    {
+      "product_id": "prod_005",
+      "name": "Running Shoes",
+      "price": 129.99,
+      "quantity": 1,
+      "color": "Black/White",
+      "size": "10"
+    },
+    {
+      "product_id": "prod_005",
+      "name": "Running Shoes",
+      "price": 129.99,
+      "quantity": 1,
+      "color": "Blue/Gray",
+      "size": "8"
+    }
+  ],
+  "total": 389.97,
+  "timestamp": "2025-11-30T18:07:03.051728",
+  "status": "confirmed"
+}

@@ -1,0 +1,17 @@
+{
+  "order_id": "ORD-20251130_160754",
+  "customer_name": "John",
+  "items": [
+    {
+      "product_id": "prod_003",
+      "name": "Organic Cotton T-Shirt",
+      "price": 29.99,
+      "quantity": 1,
+      "color": "Black",
+      "size": "L"
+    }
+  ],
+  "total": 29.99,
+  "timestamp": "2025-11-30T16:07:54.522405",
+  "status": "confirmed"
+}
