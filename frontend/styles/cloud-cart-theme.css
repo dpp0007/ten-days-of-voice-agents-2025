@@ -1,0 +1,206 @@
+/* ================================
+   CLOUD CART DESIGN SYSTEM
+   ================================ */
+
+:root {
+  /* === COLOR PALETTE === */
+  /* Sky & Cloud Colors */
+  --cloud-white: #ffffff;
+  --cloud-soft: #f8fafc;
+  --cloud-light: #e0f2fe;
+  --sky-blue: #38bdf8;
+  --sky-deep: #0ea5e9;
+  --sky-dark: #0284c7;
+  
+  /* Accent Colors */
+  --cart-orange: #fb923c;
+  --cart-orange-light: #fed7aa;
+  --success-green: #4ade80;
+  --warning-amber: #fbbf24;
+  
+  /* Neutral Tones */
+  --cloud-gray-50: #f9fafb;
+  --cloud-gray-100: #f3f4f6;
+  --cloud-gray-200: #e5e7eb;
+  --cloud-gray-300: #d1d5db;
+  --cloud-gray-400: #9ca3af;
+  --cloud-gray-500: #6b7280;
+  --cloud-gray-600: #4b5563;
+  --cloud-gray-700: #374151;
+  --cloud-gray-800: #1f2937;
+  --cloud-gray-900: #111827;
+  
+  /* === GRADIENTS === */
+  --gradient-sky: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%);
+  --gradient-cloud: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+  --gradient-cart: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+  --gradient-success: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  
+  /* === SHADOWS === */
+  --shadow-cloud-sm: 0 2px 8px rgba(14, 165, 233, 0.08);
+  --shadow-cloud-md: 0 4px 16px rgba(14, 165, 233, 0.12);
+  --shadow-cloud-lg: 0 8px 32px rgba(14, 165, 233, 0.16);
+  --shadow-cloud-xl: 0 16px 48px rgba(14, 165, 233, 0.2);
+  --shadow-float: 0 20px 60px rgba(14, 165, 233, 0.25);
+  
+  /* === TYPOGRAPHY === */
+  --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* === SPACING === */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  
+  /* === BORDER RADIUS === */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  
+  /* === ANIMATIONS === */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* === CLOUD CART ANIMATIONS === */
+@keyframes float-cloud {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes drift-slow {
+  0%, 100% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: var(--shadow-cloud-md);
+  }
+  50% {
+    box-shadow: var(--shadow-cloud-lg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === UTILITY CLASSES === */
+.cloud-card {
+  background: var(--cloud-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-cloud-md);
+  transition: all var(--transition-base);
+}
+
+.cloud-card:hover {
+  box-shadow: var(--shadow-cloud-lg);
+  transform: translateY(-4px);
+}
+
+.cloud-button {
+  background: var(--gradient-sky);
+  color: var(--cloud-gray-800);
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 12px 24px;
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--shadow-cloud-sm);
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.cloud-button:hover {
+  box-shadow: var(--shadow-cloud-md);
+  transform: translateY(-2px);
+}
+
+.cloud-button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-cloud-sm);
+}
+
+.cart-button {
+  background: var(--gradient-cart);
+  color: var(--cloud-white);
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 12px 24px;
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-cloud-md);
+  transition: all var(--transition-bounce);
+  cursor: pointer;
+}
+
+.cart-button:hover {
+  box-shadow: var(--shadow-cloud-lg);
+  transform: translateY(-4px) scale(1.05);
+}
+
+.floating-element {
+  animation: float-cloud 4s ease-in-out infinite;
+}
+
+.drifting-element {
+  animation: drift-slow 6s ease-in-out infinite;
+}
+
+.cloud-gradient-bg {
+  background: var(--gradient-sky);
+}
+
+.cloud-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
