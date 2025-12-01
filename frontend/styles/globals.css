@@ -1,75 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  /* Pixel Game Show Theme Colors */
+  --background-deep: #0c1635;
+  --panel-navy: #111a3d;
+  --accent-yellow: #f9d66b;
+  --accent-red: #e95353;
+  --accent-aqua: #4ad4c6;
+  --accent-lilac: #c29cff;
+  --text-off-white: #f7f5ef;
+  --text-muted: #9ba4cf;
+  --border-idle: #252d55;
+  --control-bar-bg: #060b21;
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.269 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.371 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.439 0 0);
+  --radius: 0.625rem;
+  --background: var(--background-deep);
+  --foreground: var(--text-off-white);
+  --card: var(--panel-navy);
+  --card-foreground: var(--text-off-white);
+  --popover: var(--panel-navy);
+  --popover-foreground: var(--text-off-white);
+  --primary: var(--accent-yellow);
+  --primary-foreground: #000000;
+  --secondary: var(--panel-navy);
+  --secondary-foreground: var(--text-off-white);
+  --muted: var(--panel-navy);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--accent-aqua);
+  --accent-foreground: #000000;
+  --destructive: var(--accent-red);
+  --border: var(--border-idle);
+  --input: var(--background-deep);
+  --ring: var(--accent-aqua);
 }
 
 @theme inline {
@@ -79,6 +45,7 @@
   --font-mono:
     var(--font-commit-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     'Liberation Mono', 'Courier New', monospace;
+  --font-pixel: 'Press Start 2P', cursive;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -98,64 +65,432 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
   * {
-    @apply border-foreground/20 outline-ring/50;
+    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
   }
+
+  .pixel-font {
+    font-family: 'Press Start 2P', cursive;
+    line-height: 1.6;
+  }
 }
 
 @layer utils {
-  .animate-text-shimmer {
-    animation-delay: 0.5s;
-    animation-duration: 3s;
-    animation-iteration-count: infinite;
-    animation-name: text-shimmer;
-    background: var(--muted-foreground)
-      gradient(
-        linear,
-        100% 0,
-        0 0,
-        from(var(--muted-foreground)),
-        color-stop(0.5, var(--secondary-foreground)),
-        to(var(--muted-foreground))
-      );
-    background: var(--muted-foreground) -webkit-gradient(
-        linear,
-        100% 0,
-        0 0,
-        from(var(--muted-foreground)),
-        color-stop(0.5, var(--secondary-foreground)),
-        to(var(--muted-foreground))
-      );
-    background-repeat: no-repeat;
-    background-size: 50% 200%;
-    display: inline-block;
+  /* Blinking dot animation for ON AIR */
+  @keyframes blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+    51%,
+    100% {
+      opacity: 0;
+    }
   }
 
-  @keyframes text-shimmer {
+  .blink {
+    animation: blink 1.5s infinite;
+  }
+
+  /* Pixel waveform animation */
+  @keyframes wave {
+    0%,
+    100% {
+      height: 8px;
+    }
+    50% {
+      height: 24px;
+    }
+  }
+
+  .wave-bar {
+    animation: wave 1.2s ease-in-out infinite;
+  }
+
+  .wave-bar:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  .wave-bar:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+  .wave-bar:nth-child(4) {
+    animation-delay: 0.3s;
+  }
+  .wave-bar:nth-child(5) {
+    animation-delay: 0.4s;
+  }
+  .wave-bar:nth-child(6) {
+    animation-delay: 0.5s;
+  }
+  .wave-bar:nth-child(7) {
+    animation-delay: 0.6s;
+  }
+  .wave-bar:nth-child(8) {
+    animation-delay: 0.7s;
+  }
+
+  /* Pixel Night Sky Background */
+  .pixel-sky-bg {
+    background: linear-gradient(180deg, #0f1c46 0%, #1c2670 50%, #2b3fa3 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Radial glow from center */
+  .pixel-sky-bg::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 800px;
+    height: 800px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(128, 231, 255, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Pixel stars twinkle */
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .pixel-star {
+    position: absolute;
+    background: #80e7ff;
+    animation: twinkle 4s ease-in-out infinite;
+  }
+
+  /* Floating blocks */
+  @keyframes float-up {
     0% {
-      background-position: -100% 0;
+      transform: translateY(0) rotate(0deg);
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 0.35;
     }
     100% {
-      background-position: 250% 0;
+      transform: translateY(-100vh) rotate(180deg);
+      opacity: 0;
+    }
+  }
+
+  .pixel-block {
+    position: absolute;
+    background: rgba(157, 124, 255, 0.2);
+    animation: float-up 25s linear infinite;
+  }
+
+  /* Dark overlay for contrast */
+  .pixel-sky-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 0%, rgba(12, 22, 53, 0.3) 100%);
+    pointer-events: none;
+  }
+
+  /* Message fade-in animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ========================================
+     MOBILE OPTIMIZATIONS FOR CHROME ANDROID
+     ======================================== */
+  @media (max-width: 768px) {
+    /* MOBILE ROOT - Force existence and fill screen */
+    .mobile-root {
+      position: relative !important;
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100dvh !important;
+      width: 100% !important;
+      overflow: hidden !important;
+      padding: 10px !important;
+      padding-top: calc(env(safe-area-inset-top, 0) + 10px) !important;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom, 0)) !important;
+    }
+
+    /* Prevent body clipping */
+    body {
+      padding-bottom: 80px !important;
+    }
+
+    /* BOTTOM NAVBAR - Fixed and visible */
+    .mobile-control-bar-fixed,
+    .fixed.inset-x-0.bottom-0.z-50 {
+      position: fixed !important;
+      bottom: env(safe-area-inset-bottom, 0) !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: 72px !important;
+      z-index: 1000 !important;
+      background: rgba(10, 14, 30, 0.95) !important;
+      backdrop-filter: blur(8px) !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+
+    /* Prevent keyboard overlap */
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      .mobile-control-bar-fixed {
+        padding-bottom: env(safe-area-inset-bottom) !important;
+      }
+    }
+    /* HEADER - HUD Bar - Force visible */
+    .mobile-hud {
+      flex-shrink: 0 !important;
+      margin-bottom: 10px !important;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    .mobile-hud > div {
+      height: 40px !important;
+      min-height: 40px !important;
+      padding: 8px 10px !important;
+      display: flex !important;
+    }
+
+    .mobile-hud-title {
+      font-size: 8px !important;
+    }
+
+    /* CHAT SECTION - Force visible and fill space */
+    .mobile-chat-area {
+      flex: 1 !important;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      overflow-y: auto !important;
+      margin-bottom: 10px !important;
+      min-height: 100px !important;
+    }
+
+    .mobile-chat-area > div {
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    /* Waveform Mobile */
+    .mobile-waveform {
+      height: 20px !important;
+      margin-bottom: 16px !important;
+    }
+
+    /* Messages Mobile - MUST SCROLL */
+    .mobile-messages {
+      flex: 1 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      padding-right: 8px !important;
+      min-height: 0 !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* PLAYER STRIP - Force visible */
+    .mobile-player-strip {
+      flex-shrink: 0 !important;
+      height: 44px !important;
+      min-height: 44px !important;
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding: 10px 12px !important;
+      background: rgba(17, 26, 61, 0.8) !important;
+      border: 1px solid #4ad4c6 !important;
+      border-radius: 6px !important;
+      margin-bottom: 0 !important;
+    }
+
+    /* Nav Bar - Bottom Fixed with 10px Margin */
+    .mobile-bottom-bar {
+      height: auto !important;
+      min-height: 74px !important;
+      max-height: 74px !important;
+      background: transparent !important;
+      border-radius: 500px important;
+      border-top: none !important;
+      position: fixed !important;
+      bottom: 42px;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 100 !important;
+      display: flex !important;
+      align-items: flex-end !important;
+    }
+
+    /* Hide desktop layout on mobile */
+    .mobile-session-root
+      > div:not(.mobile-hud):not(.mobile-chat-area):not(.mobile-player-strip):not(
+        .mobile-control-bar-fixed
+      ) {
+      display: none !important;
+    }
+
+    /* Message Padding Mobile */
+    .mobile-message-host {
+      padding: 14px !important;
+      font-size: 15px !important;
+    }
+
+    .mobile-message-player {
+      padding: 12px 14px !important;
+      font-size: 14px !important;
+    }
+
+    /* Nav container - Prevent overflow */
+    .mobile-nav-container,
+    .mobile-control-bar-fixed > div[aria-label='Voice assistant controls'] {
+      width: 100% !important;
+      max-width: 470px !important;
+      margin-inline: auto !important;
+      display: flex !important;
+      justify-content: space-evenly !important;
+      align-items: center !important;
+      gap: 10px !important;
+      padding-inline: 12px !important;
+      background: transparent !important;
+      border: none !important;
+    }
+
+    /* Hide unnecessary buttons on mobile */
+    .mobile-bottom-bar button[aria-label='Toggle camera'],
+    .mobile-bottom-bar button[aria-label='Toggle screen share'] {
+      display: none !important;
+    }
+
+    /* Keep transcript button visible as it might be the chat */
+    .mobile-bottom-bar button[aria-label='Toggle transcript'] {
+      display: flex !important;
+    }
+
+    /* Control bar layout - Prevent overflow */
+    .mobile-control-bar-fixed > div {
+      gap: 10px !important;
+      max-width: 100% !important;
+      overflow: visible !important;
+    }
+
+    .mobile-control-bar-fixed > div > div {
+      gap: 10px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-evenly !important;
+    }
+
+    /* Remove bad positioning */
+    .mobile-control-bar-fixed * {
+      position: static !important;
+      transform: none !important;
+    }
+
+    .mobile-control-bar-fixed button,
+    .mobile-control-bar-fixed [role='button'] {
+      position: relative !important;
+    }
+
+    /* All nav buttons - Proper sizing */
+    .mobile-control-bar-fixed button,
+    .mobile-control-bar-fixed [role='button'] {
+      min-width: 44px !important;
+      min-height: 44px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 18px !important;
+      aspect-ratio: 1 / 1 !important;
+      flex-shrink: 0 !important;
+    }
+
+    /* Mic button */
+    .mobile-control-bar-fixed button[aria-label='Toggle microphone'] {
+      background: rgba(74, 212, 198, 0.2) !important;
+      border: 2px solid #4ad4c6 !important;
+      color: #4ad4c6 !important;
+    }
+
+    /* Mic Active state */
+    .mobile-bottom-bar button[aria-label='Toggle microphone'][data-state='on'] {
+      background: #4ad4c6 !important;
+      color: #000 !important;
+      box-shadow: 0 0 16px rgba(74, 212, 198, 0.6) !important;
+    }
+
+    /* Chat input area - Visible */
+    .mobile-bottom-bar input[type='text'],
+    .mobile-bottom-bar textarea {
+      flex: 1 !important;
+      height: 44px !important;
+      min-height: 44px !important;
+      max-height: 44px !important;
+      padding: 10px 14px !important;
+      font-size: 14px !important;
+      border-radius: 22px !important;
+      background: rgba(12, 22, 53, 0.8) !important;
+      border: 2px solid #252d55 !important;
+      color: #f7f5ef !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+
+    .mobile-bottom-bar input[type='text']:focus,
+    .mobile-bottom-bar textarea:focus {
+      border-color: #4ad4c6 !important;
+      outline: none !important;
+    }
+
+    .mobile-bottom-bar input[type='text']::placeholder,
+    .mobile-bottom-bar textarea::placeholder {
+      color: #9ba4cf !important;
+      opacity: 0.7 !important;
+    }
+
+    /* END CALL Button - Prominent and visible */
+    .mobile-control-bar-fixed button[class*='destructive'],
+    .end-call {
+      background: #e54b4b !important;
+      color: white !important;
+      min-width: 56px !important;
+      min-height: 44px !important;
+      border-radius: 22px !important;
+      padding: 10px 16px !important;
+      font-weight: 700 !important;
+      font-size: 13px !important;
+      border: none !important;
+      display: flex !important;
+    }
+
+    /* Remove excessive top space */
+    .pixel-sky-bg {
+      min-height: 100vh !important;
+      display: flex !important;
+      flex-direction: column !important;
     }
   }
 }

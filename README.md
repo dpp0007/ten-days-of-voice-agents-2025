@@ -1,214 +1,280 @@
-# AI Voice Agents Challenge - Starter Repository
-
-Welcome to the **AI Voice Agents Challenge** by [murf.ai](https://murf.ai)!
-
-## About the Challenge
-
-We just launched **Murf Falcon** – the consistently fastest TTS API, and you're going to be among the first to test it out in ways never thought before!
-
-**Build 10 AI Voice Agents over the course of 10 Days** along with help from our devs and the community champs, and win rewards!
-
-### How It Works
-
-- One task to be provided everyday along with a GitHub repo for reference
-- Build a voice agent with specific personas and skills
-- Post on GitHub and share with the world on LinkedIn!
-
-## Repository Structure
-
-This is a **monorepo** that contains both the backend and frontend for building voice agent applications. It's designed to be your starting point for each day's challenge task.
+# 🎮 IMPROV BATTLE
+## Voice-First AI Game Show
 
 ```
-falcon-tdova-nov25-livekit/
-├── backend/          # LiveKit Agents backend with Murf Falcon TTS
-├── frontend/         # React/Next.js frontend for voice interaction
-├── start_app.sh      # Convenience script to start all services
-└── README.md         # This file
+┌─────────────────────────────────────────────┐
+│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │
+│  ▓▓                                     ▓▓  │
+│  ▓▓    📺  IMPROV BATTLE  📺           ▓▓  │
+│  ▓▓                                     ▓▓  │
+│  ▓▓    [●] ON AIR                       ▓▓  │
+│  ▓▓                                     ▓▓  │
+│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │
+└─────────────────────────────────────────────┘
 ```
 
-### Backend
+---
 
-The backend is based on [LiveKit's agent-starter-python](https://github.com/livekit-examples/agent-starter-python) with modifications to integrate **Murf Falcon TTS** for ultra-fast, high-quality voice synthesis.
+## What This Is
 
-**Features:**
+**IMPROV BATTLE** is a live, voice-powered improv game show where you perform scenes for an AI host who reacts in real-time.
 
-- Complete voice AI agent framework using LiveKit Agents
-- Murf Falcon TTS integration for fastest text-to-speech
-- LiveKit Turn Detector for contextually-aware speaker detection
-- Background voice cancellation
-- Integrated metrics and logging
-- Complete test suite with evaluation framework
-- Production-ready Dockerfile
+No typing. No clicking. Just you, your voice, and a pixel TV broadcast universe.
 
-[→ Backend Documentation](./backend/README.md)
+The AI host gives you absurd scenarios. You act them out. The host reacts—sometimes impressed, sometimes not. It's a show, and you're the star.
 
-### Frontend
+---
 
-The frontend is based on [LiveKit's agent-starter-react](https://github.com/livekit-examples/agent-starter-react), providing a modern, beautiful UI for interacting with your voice agents.
+## Features
 
-**Features:**
+✅ **Live Voice Host** — AI-powered personality that runs the show  
+✅ **Pixel Broadcast UI** — Retro TV aesthetic with animated stars and floating blocks  
+✅ **Real-Time Reactions** — The host listens, judges, and responds to your performance  
+✅ **Round System** — 3-5 rounds of escalating improv chaos  
+✅ **Gemini Intelligence** — Google's Gemini 2.5 Flash powers the host's brain  
+✅ **Murf Voice Personality** — Natural, expressive TTS for the host  
+✅ **LiveKit Audio Streaming** — Low-latency voice communication  
+✅ **Mobile-Ready** — Optimized for phones with touch controls and safe areas
 
-- Real-time voice interaction with LiveKit Agents
-- Camera video streaming support
-- Screen sharing capabilities
-- Audio visualization and level monitoring
-- Light/dark theme switching
-- Highly customizable branding and UI
+---
 
-[→ Frontend Documentation](./frontend/README.md)
+## Tech Stack
 
-## Quick Start
+📡 **LiveKit** = Broadcast System  
+🧠 **Gemini 2.5 Flash** = Host's Brain  
+🎙 **Murf TTS** = Voice Personality  
+🎮 **Next.js Frontend** = Pixel Screen  
+🛠 **Python Backend** = Show Engine  
+🔊 **Deepgram STT** = Speech Recognition  
+🎯 **Silero VAD** = Turn Detection
+
+---
+
+## Setup
 
 ### Prerequisites
 
-Make sure you have the following installed:
+- Python 3.11+
+- Node.js 18+
+- pnpm (or npm)
+- LiveKit Cloud account (free tier works)
+- Google AI API key (Gemini)
+- Murf API key
+- Deepgram API key
 
-- Python 3.9+ with [uv](https://docs.astral.sh/uv/) package manager
-- Node.js 18+ with pnpm
-- [LiveKit CLI](https://docs.livekit.io/home/cli/cli-setup) (optional but recommended)
-- [LiveKit Server](https://docs.livekit.io/home/self-hosting/local/) for local development
+### Install
 
-### 1. Clone the Repository
-
-```bash
-git clone <your-repo-url>
-cd falcon-tdova-nov25-livekit
-```
-
-### 2. Backend Setup
-
+**Backend:**
 ```bash
 cd backend
-
-# Install dependencies
+pip install uv
 uv sync
-
-# Copy environment file and configure
-cp .env.example .env.local
-
-# Edit .env.local with your credentials:
-# - LIVEKIT_URL
-# - LIVEKIT_API_KEY
-# - LIVEKIT_API_SECRET
-# - MURF_API_KEY (for Falcon TTS)
-# - GOOGLE_API_KEY (for Gemini LLM)
-# - DEEPGRAM_API_KEY (for Deepgram STT)
-
-# Download required models
-uv run python src/agent.py download-files
 ```
 
-For LiveKit Cloud users, you can automatically populate credentials:
-
-```bash
-lk cloud auth
-lk app env -w -d .env.local
-```
-
-### 3. Frontend Setup
-
+**Frontend:**
 ```bash
 cd frontend
-
-# Install dependencies
 pnpm install
-
-# Copy environment file and configure
-cp .env.example .env.local
-
-# Edit .env.local with the same LiveKit credentials
 ```
 
-### 4. Run the Application
+### Configure Environment
 
-#### Install livekit server
-
+**Backend** (`backend/.env.local`):
 ```bash
-brew install livekit
+LIVEKIT_URL=wss://your-project.livekit.cloud
+LIVEKIT_API_KEY=your_api_key
+LIVEKIT_API_SECRET=your_api_secret
+GOOGLE_API_KEY=your_gemini_key
+MURF_API_KEY=your_murf_key
+DEEPGRAM_API_KEY=your_deepgram_key
 ```
 
-You have two options:
-
-#### Option A: Use the convenience script (runs everything)
-
+**Frontend** (`frontend/.env.local`):
 ```bash
-# From the root directory
-chmod +x start_app.sh
-./start_app.sh
+LIVEKIT_URL=wss://your-project.livekit.cloud
+LIVEKIT_API_KEY=your_api_key
+LIVEKIT_API_SECRET=your_api_secret
+NEXT_PUBLIC_LIVEKIT_URL=wss://your-project.livekit.cloud
 ```
 
-This will start:
+### Run
 
-- LiveKit Server (in dev mode)
-- Backend agent (listening for connections)
-- Frontend app (at http://localhost:3000)
-
-#### Option B: Run services individually
-
+**Start Backend:**
 ```bash
-# Terminal 1 - LiveKit Server
-livekit-server --dev
-
-# Terminal 2 - Backend Agent
 cd backend
-uv run python src/agent.py dev
+python -m src.agent dev
+```
 
-# Terminal 3 - Frontend
+**Start Frontend:**
+```bash
 cd frontend
 pnpm dev
 ```
 
-Then open http://localhost:3000 in your browser!
-
-## Daily Challenge Tasks
-
-Each day, you'll receive a new task that builds upon your voice agent. The tasks will help you:
-
-- Implement different personas and conversation styles
-- Add custom tools and capabilities
-- Integrate with external APIs
-- Build domain-specific agents (customer service, tutoring, etc.)
-- Optimize performance and user experience
-
-**Stay tuned for daily task announcements!**
-
-## Documentation & Resources
-
-- [Murf Falcon TTS Documentation](https://murf.ai/api/docs/text-to-speech/streaming)
-- [LiveKit Agents Documentation](https://docs.livekit.io/agents)
-- [Original Backend Template](https://github.com/livekit-examples/agent-starter-python)
-- [Original Frontend Template](https://github.com/livekit-examples/agent-starter-react)
-
-## Testing
-
-The backend includes a comprehensive test suite:
-
-```bash
-cd backend
-uv run pytest
-```
-
-Learn more about testing voice agents in the [LiveKit testing documentation](https://docs.livekit.io/agents/build/testing/).
-
-## Contributing & Community
-
-This is a challenge repository, but we encourage collaboration and knowledge sharing!
-
-- Share your solutions and learnings on GitHub
-- Post about your progress on LinkedIn
-- Join the [LiveKit Community Slack](https://livekit.io/join-slack)
-- Connect with other challenge participants
-
-## License
-
-This project is based on MIT-licensed templates from LiveKit and includes integration with Murf Falcon. See individual LICENSE files in backend and frontend directories for details.
-
-## Have Fun!
-
-Remember, the goal is to learn, experiment, and build amazing voice AI agents. Don't hesitate to be creative and push the boundaries of what's possible with Murf Falcon and LiveKit!
-
-Good luck with the challenge!
+Open `http://localhost:3000`
 
 ---
 
-Built for the AI Voice Agents Challenge by murf.ai
+## How to Play
+
+1. **Enter Your Name** — The host will use it throughout the show
+2. **Start Call** — Click "Start" and allow microphone access
+3. **Listen to Scenario** — The host gives you a character and situation
+4. **Perform the Scene** — Act it out with your voice
+5. **Say "End Scene"** — When you're done, say this to move on
+6. **Get Feedback** — The host reacts to your performance
+7. **Repeat** — Continue through 3-5 rounds
+8. **Finish Show** — Get a final summary and wrap-up
+
+---
+
+## Architecture Overview
+
+```
+┌─────────────┐
+│   Browser   │ ← User speaks into microphone
+└──────┬──────┘
+       │
+       ↓
+┌─────────────┐
+│   LiveKit   │ ← Real-time audio streaming
+└──────┬──────┘
+       │
+       ↓
+┌─────────────┐
+│ Voice Agent │ ← Python backend processes audio
+└──────┬──────┘
+       │
+       ├──→ Deepgram STT (speech → text)
+       ├──→ Gemini LLM (text → response)
+       └──→ Murf TTS (response → speech)
+```
+
+**Frontend Flow:**
+```
+Next.js App → LiveKit React SDK → WebRTC → LiveKit Cloud
+```
+
+**Backend Flow:**
+```
+LiveKit Agent → STT → LLM → TTS → Audio Stream
+```
+
+---
+
+## Project Structure
+
+```
+improv-battle/
+├── backend/
+│   ├── src/
+│   │   ├── agent.py          # Main voice agent logic
+│   │   └── __init__.py
+│   ├── .env.local            # Backend environment config
+│   ├── pyproject.toml        # Python dependencies
+│   └── uv.lock
+│
+├── frontend/
+│   ├── app/
+│   │   ├── session-view.tsx  # Main game UI
+│   │   ├── welcome-view.tsx  # Name entry screen
+│   │   └── app.tsx           # Root component
+│   ├── styles/
+│   │   └── globals.css       # Pixel theme styles
+│   ├── .env.local            # Frontend environment config
+│   └── package.json
+│
+├── challenges/               # Original challenge tasks
+├── LICENSE
+└── README.md                 # You are here
+```
+
+---
+
+## Environment Variables
+
+### Backend Required
+
+| Variable | Description |
+|----------|-------------|
+| `LIVEKIT_URL` | Your LiveKit server URL |
+| `LIVEKIT_API_KEY` | LiveKit API key |
+| `LIVEKIT_API_SECRET` | LiveKit API secret |
+| `GOOGLE_API_KEY` | Google AI (Gemini) API key |
+| `MURF_API_KEY` | Murf TTS API key |
+| `DEEPGRAM_API_KEY` | Deepgram STT API key |
+
+### Frontend Required
+
+| Variable | Description |
+|----------|-------------|
+| `LIVEKIT_URL` | Your LiveKit server URL (server-side) |
+| `LIVEKIT_API_KEY` | LiveKit API key (server-side) |
+| `LIVEKIT_API_SECRET` | LiveKit API secret (server-side) |
+| `NEXT_PUBLIC_LIVEKIT_URL` | Your LiveKit server URL (client-side) |
+
+---
+
+## Customization
+
+### Change Host Personality
+
+Edit `backend/src/agent.py` → `Assistant.__init__()` → `instructions` parameter
+
+### Adjust Round Count
+
+The host randomly picks 3-5 rounds. To force a specific count, modify the instructions in `agent.py`.
+
+### Modify UI Theme
+
+Edit `frontend/styles/globals.css` → Look for `.pixel-sky-bg`, `.pixel-star`, `.pixel-block`
+
+### Change Voice
+
+Edit `backend/src/agent.py` → `tts=murf.TTS(voice="...")` → See [Murf voice options](https://docs.livekit.io/agents/models/tts/plugins/murf)
+
+---
+
+## Troubleshooting
+
+**Agent won't start:**
+- Check all API keys are set in `backend/.env.local`
+- Verify LiveKit URL format: `wss://your-project.livekit.cloud`
+
+**No audio in browser:**
+- Allow microphone permissions
+- Check browser console for WebRTC errors
+- Verify `NEXT_PUBLIC_LIVEKIT_URL` matches backend `LIVEKIT_URL`
+
+**Host doesn't respond:**
+- Check backend logs for errors
+- Verify Gemini API key has quota
+- Ensure Deepgram API key is active
+
+**Rounds not updating:**
+- The UI detects "Round X" in agent messages
+- Check browser console for parsing errors
+
+---
+
+## License
+
+MIT License - See LICENSE file for details
+
+---
+
+## Credits
+
+Built with:
+- [LiveKit](https://livekit.io) - Real-time communication
+- [Google Gemini](https://ai.google.dev) - Language model
+- [Murf AI](https://murf.ai) - Text-to-speech
+- [Deepgram](https://deepgram.com) - Speech-to-text
+- [Next.js](https://nextjs.org) - Frontend framework
+
+---
+
+**You're not just running a server.**  
+**You're launching a show.**
+
+🎬 Break a leg.

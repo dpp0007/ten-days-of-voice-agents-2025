@@ -45,6 +45,10 @@ export function useRoom(appConfig: AppConfig) {
         );
 
         try {
+          // Get player name from localStorage
+          const playerName =
+            typeof window !== 'undefined' ? localStorage.getItem('playerName') : null;
+
           const res = await fetch(url.toString(), {
             method: 'POST',
             headers: {
@@ -52,6 +56,7 @@ export function useRoom(appConfig: AppConfig) {
               'X-Sandbox-Id': appConfig.sandboxId ?? '',
             },
             body: JSON.stringify({
+              name: playerName || undefined,
               room_config: appConfig.agentName
                 ? {
                     agents: [{ agent_name: appConfig.agentName }],

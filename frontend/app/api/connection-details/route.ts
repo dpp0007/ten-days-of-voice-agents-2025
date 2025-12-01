@@ -1,91 +1,109 @@
-import { NextResponse } from 'next/server';
-import { AccessToken, type AccessTokenOptions, type VideoGrant } from 'livekit-server-sdk';
-import { RoomConfiguration } from '@livekit/protocol';
+import { NextRequest, NextResponse } from 'next/server';
+import { AccessToken } from 'livekit-server-sdk';
 
-type ConnectionDetails = {
-  serverUrl: string;
-  roomName: string;
-  participantName: string;
-  participantToken: string;
-};
-
-// NOTE: you are expected to define the following environment variables in `.env.local`:
-const API_KEY = process.env.LIVEKIT_API_KEY;
-const API_SECRET = process.env.LIVEKIT_API_SECRET;
-const LIVEKIT_URL = process.env.LIVEKIT_URL;
-
-// don't cache the results
-export const revalidate = 0;
-
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    if (LIVEKIT_URL === undefined) {
-      throw new Error('LIVEKIT_URL is not defined');
-    }
-    if (API_KEY === undefined) {
-      throw new Error('LIVEKIT_API_KEY is not defined');
-    }
-    if (API_SECRET === undefined) {
-      throw new Error('LIVEKIT_API_SECRET is not defined');
+    // Get environment variables
+    const apiKey = process.env.LIVEKIT_API_KEY;
+    const apiSecret = process.env.LIVEKIT_API_SECRET;
+    const wsUrl = process.env.LIVEKIT_URL;
+
+    // Validate environment variables
+    if (!apiKey || !apiSecret || !wsUrl) {
+      console.error('Missing LiveKit environment variables:', {
+        hasApiKey: !!apiKey,
+        hasApiSecret: !!apiSecret,
+        hasWsUrl: !!wsUrl,
+      });
+      return NextResponse.json(
+        { error: 'Server configuration error: Missing LiveKit credentials' },
+        { status: 500 }
+      );
     }
 
-    // Parse agent configuration from request body
-    const body = await req.json();
-    const agentName: string = body?.room_config?.agents?.[0]?.agent_name;
+    // Parse request body (optional)
+    let body: any = {};
+    try {
+      body = await request.json();
+    } catch {
+      // Body is optional, continue with defaults
+    }
 
-    // Generate participant token
-    const participantName = 'user';
-    const participantIdentity = `voice_assistant_user_${Math.floor(Math.random() * 10_000)}`;
-    const roomName = `voice_assistant_room_${Math.floor(Math.random() * 10_000)}`;
+    // Generate room name (use provided or generate new)
+    const roomName = body.roomName || `improv-battle-${Date.now()}`;
 
-    const participantToken = await createParticipantToken(
-      { identity: participantIdentity, name: participantName },
+    // Generate unique identity (use provided or generate new)
+    const identity = body.identity || `user-${Math.random().toString(36).substring(7)}`;
+
+    // Get player name from localStorage (passed from frontend)
+    // This will be used by the voice agent to address the player
+    const name = body.name || body.playerName || identity;
+
+    // Create access token
+    const token = new AccessToken(apiKey, apiSecret, {
+      identity,
+      name,
+      ttl: '10h', // Token valid for 10 hours
+    });
+
+    // Grant permissions
+    token.addGrant({
+      room: roomName,
+      roomJoin: true,
+      canPublish: true,
+      canPublishData: true,
+      canSubscribe: true,
+    });
+
+    // Generate JWT
+    const jwt = await token.toJwt();
+
+    // Log success
+    console.log('✅ Generated LiveKit token:', {
       roomName,
-      agentName
-    );
+      identity,
+      name,
+      wsUrl,
+    });
 
     // Return connection details
-    const data: ConnectionDetails = {
-      serverUrl: LIVEKIT_URL,
+    return NextResponse.json({
+      serverUrl: wsUrl,
       roomName,
-      participantToken: participantToken,
-      participantName,
-    };
-    const headers = new Headers({
-      'Cache-Control': 'no-store',
+      identity,
+      participantToken: jwt,
+      participantName: name,
     });
-    return NextResponse.json(data, { headers });
   } catch (error) {
-    if (error instanceof Error) {
-      console.error(error);
-      return new NextResponse(error.message, { status: 500 });
-    }
+    console.error('❌ Error generating LiveKit token:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to generate connection details',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }
 
-function createParticipantToken(
-  userInfo: AccessTokenOptions,
-  roomName: string,
-  agentName?: string
-): Promise<string> {
-  const at = new AccessToken(API_KEY, API_SECRET, {
-    ...userInfo,
-    ttl: '15m',
-  });
-  const grant: VideoGrant = {
-    room: roomName,
-    roomJoin: true,
-    canPublish: true,
-    canPublishData: true,
-    canSubscribe: true,
-  };
-  at.addGrant(grant);
+// Support GET requests with query parameters (optional)
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const roomName = searchParams.get('roomName') || undefined;
+    const identity = searchParams.get('identity') || undefined;
+    const name = searchParams.get('name') || undefined;
 
-  if (agentName) {
-    at.roomConfig = new RoomConfiguration({
-      agents: [{ agentName }],
+    // Create a mock request body and call POST handler
+    const mockRequest = new Request(request.url, {
+      method: 'POST',
+      headers: request.headers,
+      body: JSON.stringify({ roomName, identity, name }),
     });
-  }
 
-  return at.toJwt();
+    return POST(mockRequest as NextRequest);
+  } catch (error) {
+    console.error('❌ Error in GET handler:', error);
+    return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
+  }
 }
